@@ -1,0 +1,19 @@
+﻿@page "/"
+
+<PageTitle>Skapa skattjakt</PageTitle>
+
+<div>
+    <h1>Ange kartnamn</h1>
+
+    <input class="map-name-input" type="text" @bind="MapName" />
+    <button class="map-name-button" @onclick="CreateMap">Skapa</button>
+</div>
+
+@code {
+    private string MapName { get; set; }
+
+    private void CreateMap()
+    {
+        // Skapa kartan
+    }
+}
