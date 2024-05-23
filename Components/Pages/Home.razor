@@ -1,5 +1,5 @@
 ﻿@page "/"
-
+@inject NavigationManager NavManager
 <PageTitle>Skapa skattjakt</PageTitle>
 
 <div class="form-content">
@@ -7,6 +7,12 @@
 
     <input class="map-name-input" type="text" @bind="MapName" />
     <button class="map-name-button" @onclick="CreateMap">Skapa</button>
+
+    <NavLink class="map-name-button" href="Skapa">
+        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Skapa
+    </NavLink>
+    <h1>@MapName</h1>
+
 </div>
 
 @code {
@@ -14,6 +20,9 @@
 
     private void CreateMap()
     {
+        NavManager.NavigateTo("/Skapa");
+        // this.JsConsole.LogAsync(message);
+        // Console.WriteLine("hemskt mycket hej.");
         // Skapa kartan
     }
 }
