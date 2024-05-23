@@ -1,10 +1,12 @@
 using Skattjakt.Components;
+using Skattjakt.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddSingleton<TreasureMapService>();
 
 var app = builder.Build();
 
