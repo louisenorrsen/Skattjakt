@@ -1,8 +1,23 @@
-﻿@page "/Skapa"
-<h3>Här kan kartan skapas.</h3>
+@page "/Skapa/{mapName}"
+@using Skattjakt.Data
+@inject TreasureMapService treasureMapService;
+@inject NavigationManager Navigation
+
+<h1>@Map.Name</h1>
 <RealTimeMap height="460px" width="620px"></RealTimeMap>
+
 @code {
-    RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters()  //general map settings
+    [Parameter]
+    public string MapName { get; set; }
+
+    private TreasureMap Map { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Map = new TreasureMap(MapName);
+        treasureMapService.AddMap(Map);
+    }
+RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters()  //general map settings
         {
             location = new RealTimeMap.Location()
             {
@@ -10,5 +25,5 @@
                 longitude = 26.1107672,
             },
             zoom_level = 18
-        };
+        };    
 }
