@@ -37,31 +37,3 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
-
-
-h1 {
-    font-size: 54px;
-    color: #013d01;
-}
-
-.map-name-button {
-    border-radius: 0px;
-    display: block;
-    width: 250px;
-    margin: 15px auto;
-    padding: 0px;
-    height: 30px;
-    border: none;
-    background-color: forestgreen;
-    color: white;
-    font-size: 16px;
-    letter-spacing: 1.5px;
-}
-
-.map-name-input {
-    width: 250px;
-    margin: 0 auto;
-    display: block;
-    padding: 0px;
-    height: 30px;
-}
