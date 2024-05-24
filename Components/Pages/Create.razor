@@ -1,6 +1,14 @@
 ﻿@page "/Skapa"
 <h3>Här kan kartan skapas.</h3>
-
+<RealTimeMap height="460px" width="620px"></RealTimeMap>
 @code {
-
+    RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters()  //general map settings
+        {
+            location = new RealTimeMap.Location()
+            {
+                latitude = 44.4501715,
+                longitude = 26.1107672,
+            },
+            zoom_level = 18
+        };
 }
