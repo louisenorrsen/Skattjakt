@@ -1,6 +1,19 @@
-﻿@page "/Skapa"
-<h3>Här kan kartan skapas.</h3>
+﻿@page "/Skapa/{mapName}"
+@using Skattjakt.Data
+@inject TreasureMapService treasureMapService;
+@inject NavigationManager Navigation
+
+<h1>@Map.Name</h1>
 
 @code {
+    [Parameter]
+    public string MapName { get; set; }
 
+    private TreasureMap Map { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Map = new TreasureMap(MapName);
+        treasureMapService.AddMap(Map);
+    }
 }
