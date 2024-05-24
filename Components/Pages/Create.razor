@@ -4,11 +4,36 @@
 @inject NavigationManager Navigation
 
 <h1 class="map-name-title">@Map.Name</h1>
-<RealTimeMap height="460px" width="620px"></RealTimeMap>
+<div class="create-stations">
+    <RealTimeMap height="460px" width="620px"></RealTimeMap>
+    <div class="station-table">
+        @for (int i = 0; i < Locations.Count; i++)
+        {
+            <StationItem Index=@i StationName="@Locations[i].Latitude.ToString()" OnMoveUp="MoveUp" OnMoveDown="MoveDown"/>
+        }
+    </div>
+</div>
+<button class="fake-location-button" type="button" @onclick="CreateFakeLocation">Lägg till position</button>
 
 @code {
     [Parameter]
     public string MapName { get; set; }
+
+    public List<LocationCoordinate> Locations = new List<LocationCoordinate>();
+
+    public List<LocationCoordinate> FakeLocations = new List<LocationCoordinate>()
+    {
+        new LocationCoordinate(59.3293, 18.0686),
+        new LocationCoordinate(57.7089, 11.9746),
+        new LocationCoordinate(55.604981, 13.003822),
+        new LocationCoordinate(63.8258, 20.2630),
+        new LocationCoordinate(65.5848, 22.1547),
+        new LocationCoordinate(59.8586, 17.6389),
+        new LocationCoordinate(59.6162, 16.5528),
+        new LocationCoordinate(58.4108, 15.6214),
+        new LocationCoordinate(56.1612, 15.5869),
+        new LocationCoordinate(59.2741, 15.2066)
+    };
 
     private TreasureMap Map { get; set; }
 
@@ -17,13 +42,39 @@
         Map = new TreasureMap(MapName);
         treasureMapService.AddMap(Map);
     }
-RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters()  //general map settings
+    RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters()  //general map settings
+    {
+        location = new RealTimeMap.Location()
         {
-            location = new RealTimeMap.Location()
-            {
-                latitude = 44.4501715,
-                longitude = 26.1107672,
-            },
-            zoom_level = 18
-        };    
+            latitude = 44.4501715,
+            longitude = 26.1107672,
+        },
+        zoom_level = 18
+    };
+
+    private void CreateFakeLocation()
+    {
+        Random random = new Random();
+        Locations.Add(FakeLocations[random.Next(1, FakeLocations.Count)]);
+    }
+
+    private void MoveUp(int index)
+    {
+        if (index > 0)
+        {
+            var temp = Locations[index];
+            Locations[index] = Locations[index - 1];
+            Locations[index - 1] = temp;
+        }
+    }
+
+    private void MoveDown(int index)
+    {
+        if (index < Locations.Count - 1)
+        {
+            var temp = Locations[index];
+            Locations[index] = Locations[index + 1];
+            Locations[index + 1] = temp;
+        }
+    }
 }
