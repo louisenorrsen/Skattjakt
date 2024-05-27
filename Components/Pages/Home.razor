@@ -11,7 +11,7 @@
 </form>
 
 @code {
-    private string MapName { get; set; }
+    private string MapName { get; set; } = "test";
 
     private void CreateMap()
     {
@@ -21,7 +21,7 @@
         }
         else
         {
-            Console.WriteLine("MapName är tomt eller null");
+            System.Diagnostics.Debug.Print("MapName är tomt eller null");
         }
     }
 }
