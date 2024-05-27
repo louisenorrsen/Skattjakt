@@ -9,7 +9,7 @@
     <div class="station-table">
         @for (int i = 0; i < Locations.Count; i++)
         {
-            <StationItem Index=@i TotalStations="@Locations.Count" StationName="@Locations[i].Latitude.ToString()" OnMoveUp="MoveUp" OnMoveDown="MoveDown"/>
+            <StationItem Station="@Locations[i]" Index=@i TotalStations="@Locations.Count" OnMoveUp="MoveUp" OnMoveDown="MoveDown"/>
         }
     </div>
 </div>
@@ -19,7 +19,7 @@
     [Parameter]
     public string MapName { get; set; }
 
-    public List<LocationCoordinate> Locations = new List<LocationCoordinate>();
+    public List<Station> Locations = new List<Station>();
 
     public List<LocationCoordinate> FakeLocations = new List<LocationCoordinate>()
     {
@@ -55,7 +55,7 @@
     private void CreateFakeLocation()
     {
         Random random = new Random();
-        Locations.Add(FakeLocations[random.Next(1, FakeLocations.Count)]);
+        Locations.Add(new Station() { Location = FakeLocations[random.Next(1, FakeLocations.Count)] });
     }
 
     private void MoveUp(int index)

@@ -1,6 +1,8 @@
-﻿<div class="station-row">
+﻿@using Skattjakt.Data
+
+<div class="station-row">
     <div class="station-id">@(Index + 1)</div>
-    <input class="station-name-input" type="text" @bind="StationName" />
+    <input class="station-name-input" type="text" @bind="Station.Name" />
     <button class="settings-button" type="button">+</button>
     
     @if (Index > 0)
@@ -15,13 +17,13 @@
 
 @code {
     [Parameter]
+    public Station Station { get; set; }
+
+    [Parameter]
     public int Index { get; set; }
 
     [Parameter]
     public int TotalStations { get; set; }
-
-    [Parameter]
-    public string StationName { get; set; }
 
     [Parameter]
     public EventCallback<int> OnMoveUp { get; set; }
