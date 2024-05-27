@@ -71,7 +71,7 @@
     private WindowNavigatorGeolocation geolocationWrapper;
     private GeolocationResult currentPosition;
     private List<GeolocationPosition> positionHistory = new List<GeolocationPosition>();
-    private IAsyncDisposable geopositionWatcher;
+    private IAsyncDisposable? geopositionWatcher;
 
     protected override void OnInitialized()
     {
@@ -80,15 +80,18 @@
         System.Diagnostics.Debug.Print("INITIALIZED");
     }
 
-
-
     protected override async Task OnInitializedAsync()
     {
+        System.Diagnostics.Debug.Print("INITIALIZED ASYNC");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        System.Diagnostics.Debug.Print("AFTER INITIALIZED ASYNC");
         var window = await jsR.Window();
         var navigator = await window.Navigator();
         geolocationWrapper = navigator.Geolocation;
-        System.Diagnostics.Debug.Print("INITIALIZED ASYNC");
-
+        //return base.OnAfterRenderAsync(firstRender);
         await GetGeoLocation();
 
         parameters = new RealTimeMap.LoadParameters()
@@ -100,10 +103,7 @@
             },
             zoom_level = 17
         };
-
     }
-
-
 
     public async Task GetGeoLocation()
     {
@@ -122,17 +122,18 @@
             positionHistory.Add(p.Location);
         });
     }
-
-
     // BUG Varför anroppas den här på reload
     public async Task StopWatch()
     {
-        await geopositionWatcher.DisposeAsync();
+        await geopositionWatcher!.DisposeAsync();
         geopositionWatcher = null;
     }
     public async ValueTask DisposeAsync()
     {
-        await StopWatch();
+        if(geopositionWatcher != null)
+        {
+            await StopWatch();
+        }
     }
 
     private void MoveUp(int index)
