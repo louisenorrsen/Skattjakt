@@ -9,8 +9,16 @@
 @inject NavigationManager Navigation
 
 <h1 class="map-name-title">@Map.Name</h1>
-
-<RealTimeMap Parameters="@parameters" height="460px" width="620px"></RealTimeMap>
+<div class="create-stations">
+  <RealTimeMap Parameters="@parameters" height="460px" width="620px"></RealTimeMap>
+    <div class="station-table">
+        @for (int i = 0; i < Locations.Count; i++)
+        {
+            <StationItem Station="@Locations[i]" Index=@i TotalStations="@Locations.Count" OnMoveUp="MoveUp" OnMoveDown="MoveDown"/>
+        }
+    </div>
+</div>
+<button class="fake-location-button" type="button" @onclick="CreateFakeLocation">L�gg till position</button>
 
 <button type="button" @onclick="GetGeoLocation">Get Pos</button>
 <button type="button" @onclick="WatchPosition">Watch Pos</button>
@@ -45,8 +53,26 @@
     static string? lngstring { get; set; }
     static double lat = 44.1107672;
     static double lng = 26.4501715;
+
     [Parameter]
     public string MapName { get; set; }
+
+    public List<Station> Locations = new List<Station>();
+
+    public List<LocationCoordinate> FakeLocations = new List<LocationCoordinate>()
+    {
+        new LocationCoordinate(59.3293, 18.0686),
+        new LocationCoordinate(57.7089, 11.9746),
+        new LocationCoordinate(55.604981, 13.003822),
+        new LocationCoordinate(63.8258, 20.2630),
+        new LocationCoordinate(65.5848, 22.1547),
+        new LocationCoordinate(59.8586, 17.6389),
+        new LocationCoordinate(59.6162, 16.5528),
+        new LocationCoordinate(58.4108, 15.6214),
+        new LocationCoordinate(56.1612, 15.5869),
+        new LocationCoordinate(59.2741, 15.2066)
+    };
+
     private TreasureMap Map { get; set; }
 
     protected override void OnInitialized()
@@ -54,6 +80,32 @@
         Map = new TreasureMap(MapName);
         treasureMapService.AddMap(Map);
         System.Diagnostics.Debug.Print("INITIALIZED");
+    }
+
+    private void CreateFakeLocation()
+    {
+        Random random = new Random();
+        Locations.Add(new Station() { Location = FakeLocations[random.Next(1, FakeLocations.Count)] });
+    }
+
+    private void MoveUp(int index)
+    {
+        if (index > 0)
+        {
+            var temp = Locations[index];
+            Locations[index] = Locations[index - 1];
+            Locations[index - 1] = temp;
+        }
+    }
+
+    private void MoveDown(int index)
+    {
+        if (index < Locations.Count - 1)
+        {
+            var temp = Locations[index];
+            Locations[index] = Locations[index + 1];
+            Locations[index + 1] = temp;
+        }
     }
 
     private WindowNavigatorGeolocation geolocationWrapper;

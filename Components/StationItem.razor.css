@@ -1,0 +1,51 @@
+﻿.station-row {
+    display: flex;
+    flex-direction: row;
+    height: 35px;
+    align-items: center;
+    margin-bottom: 10px;
+    margin-left: 1rem;
+}
+
+.station-id {
+    width: 35px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background-color: #6ca96c;
+}
+
+.station-name-input {
+    width: 150px;
+    height: 98%;
+    border: none;
+    background-color: #f0f0f0;
+    font-size: 16px;
+    padding-left: 5px;
+}
+
+.settings-button {
+    height: 100%;
+    width: 35px;
+    border: none;
+    background-color: #6ca96c;
+    padding: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.move-up-or-down-button {
+    height: 100%;
+    width: 20px;
+    border: none;
+    background: none;
+    padding: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.move-up-or-down-image {
+    height: 16px;
+}

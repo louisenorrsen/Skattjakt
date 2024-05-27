@@ -1,0 +1,43 @@
+﻿@using Skattjakt.Data
+
+<div class="station-row">
+    <div class="station-id">@(Index + 1)</div>
+    <input class="station-name-input" type="text" @bind="Station.Name" />
+    <button class="settings-button" type="button">+</button>
+    
+    @if (Index > 0)
+    {
+        <button class="move-up-or-down-button" @onclick="MoveUp"><img class="move-up-or-down-image" src="/Assets/caret-top.svg" alt="caret top"></button>
+    }
+    @if (Index < TotalStations -1)
+    {
+        <button class="move-up-or-down-button" @onclick="MoveDown"><img class="move-up-or-down-image" src="/Assets/caret-bottom.svg" alt="caret bottom"></button>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Station Station { get; set; }
+
+    [Parameter]
+    public int Index { get; set; }
+
+    [Parameter]
+    public int TotalStations { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnMoveUp { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnMoveDown { get; set; }
+
+    private async Task MoveUp()
+    {
+        await OnMoveUp.InvokeAsync(Index);
+    }
+
+    private async Task MoveDown()
+    {
+        await OnMoveDown.InvokeAsync(Index);
+    }
+}
