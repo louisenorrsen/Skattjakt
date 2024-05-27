@@ -10,7 +10,11 @@
 
 <h1 class="map-name-title">@Map.Name</h1>
 <div class="create-stations">
-  <RealTimeMap Parameters="@parameters" height="460px" width="620px"></RealTimeMap>
+  @if (parameters != null)
+    {
+        <RealTimeMap Parameters="@parameters" height="460px" width="620px"></RealTimeMap>
+    }
+
     <div class="station-table">
         @for (int i = 0; i < Locations.Count; i++)
         {
@@ -18,7 +22,7 @@
         }
     </div>
 </div>
-<button class="fake-location-button" type="button" @onclick="CreateFakeLocation">L�gg till position</button>
+<button class="fake-location-button" type="button" @onclick="CreateFakeLocation">Lägg till position</button>
 
 <button type="button" @onclick="GetGeoLocation">Get Pos</button>
 <button type="button" @onclick="WatchPosition">Watch Pos</button>
@@ -72,14 +76,75 @@
         new LocationCoordinate(56.1612, 15.5869),
         new LocationCoordinate(59.2741, 15.2066)
     };
+    RealTimeMap.LoadParameters parameters = null;
 
     private TreasureMap Map { get; set; }
+
+    private WindowNavigatorGeolocation geolocationWrapper;
+    private GeolocationResult currentPosition;
+    private List<GeolocationPosition> positionHistory = new List<GeolocationPosition>();
+    private IAsyncDisposable geopositionWatcher;
 
     protected override void OnInitialized()
     {
         Map = new TreasureMap(MapName);
         treasureMapService.AddMap(Map);
         System.Diagnostics.Debug.Print("INITIALIZED");
+    }
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var window = await jsR.Window();
+        var navigator = await window.Navigator();
+        geolocationWrapper = navigator.Geolocation;
+        System.Diagnostics.Debug.Print("INITIALIZED ASYNC");
+
+        await GetGeoLocation();
+
+        parameters = new RealTimeMap.LoadParameters()
+            {
+                location = new RealTimeMap.Location()
+                {
+                    latitude = currentPosition.Location.Coords.Latitude,
+                    longitude = currentPosition.Location.Coords.Longitude,
+                 },
+                 zoom_level = 17
+             };
+
+    }
+
+
+
+    public async Task GetGeoLocation()
+    {
+        currentPosition = (await geolocationWrapper.GetCurrentPosition(new PositionOptions()
+            {
+                EnableHighAccuracy = true,
+                MaximumAgeTimeSpan = TimeSpan.FromHours(1),
+                TimeoutTimeSpan = TimeSpan.FromMinutes(1)
+            }
+        ));
+    }
+    public async Task WatchPosition()
+    {
+        geopositionWatcher = await geolocationWrapper.WatchPosition(async (p) =>
+        {
+            positionHistory.Add(p.Location);
+        });
+    }
+
+
+    // BUG Varför anroppas den här på reload
+    public async Task StopWatch()
+    {
+        await geopositionWatcher.DisposeAsync();
+        geopositionWatcher = null;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        await StopWatch();
     }
 
     private void CreateFakeLocation()
@@ -106,55 +171,5 @@
             Locations[index] = Locations[index + 1];
             Locations[index + 1] = temp;
         }
-    }
-
-    private WindowNavigatorGeolocation geolocationWrapper;
-    private GeolocationResult currentPosition;
-    private List<GeolocationPosition> positionHistory = new List<GeolocationPosition>();
-    private IAsyncDisposable geopositionWatcher;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var window = await jsR.Window();
-        var navigator = await window.Navigator();
-        geolocationWrapper = navigator.Geolocation;
-        System.Diagnostics.Debug.Print("INITIALIZED ASYNC");
-    }
-
-    RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters()
-        {
-            location = new RealTimeMap.Location()
-            {
-                latitude = lat,
-                longitude = lng,
-            },
-            zoom_level = 10
-        };
-
-    public async Task GetGeoLocation()
-    {
-        currentPosition = (await geolocationWrapper.GetCurrentPosition(new PositionOptions()
-            {
-                EnableHighAccuracy = true,
-                MaximumAgeTimeSpan = TimeSpan.FromHours(1),
-                TimeoutTimeSpan = TimeSpan.FromMinutes(1)
-            }
-        ));
-    }
-    public async Task WatchPosition()
-    {
-        geopositionWatcher = await geolocationWrapper.WatchPosition(async (p) =>
-        {
-            positionHistory.Add(p.Location);
-        });
-    }
-    public async Task StopWatch()
-    {
-        await geopositionWatcher.DisposeAsync();
-        geopositionWatcher = null;
-    }
-    public async ValueTask DisposeAsync()
-    {
-        await StopWatch();
     }
 }
