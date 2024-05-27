@@ -156,18 +156,21 @@
         }
     }
 
-    public void GetPositionFromMapClick(RealTimeMap.ClicksMapArgs value)
+    public void GetPositionFromMapClick(RealTimeMap.ClicksMapArgs clickValue)
     {
         Locations.Add(new Station() 
         { 
-            Location = new LocationCoordinate(value.location.latitude, value.location.longitude),
-            Name = $"{value.location.latitude}, {value.location.longitude}"
+            Location = new LocationCoordinate(clickValue.location.latitude, clickValue.location.longitude),
+            Name = $"{clickValue.location.latitude}, {clickValue.location.longitude}",
+            Id = Locations.Count + 1
         });
 
         StreamPoints.Add(new RealTimeMap.StreamPoint() 
         { 
-            latitude = value.location.latitude, 
-            longitude = value.location.longitude            
+            latitude = clickValue.location.latitude, 
+            longitude = clickValue.location.longitude,
+            guid = Guid.NewGuid(),
+            value = Locations.Last().Id.ToString()
         });
 
         realTimeMap.Geometric.Points.Appearance().pattern = new RealTimeMap.PointSymbol()
@@ -176,6 +179,13 @@
             fillColor = "red",
             fillOpacity = 0.7,
             radius = 10,
+        };
+
+        realTimeMap.Geometric.Points.Appearance().pattern = new RealTimeMap.PointTooltip()
+        {
+            content = "${value}",
+            opacity = 0.8,
+            permanent = true
         };
 
         realTimeMap.Geometric.Points.upload(StreamPoints, true);
