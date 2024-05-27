@@ -2,13 +2,23 @@
     <div class="station-id">@(Index + 1)</div>
     <input class="station-name-input" type="text" @bind="StationName" />
     <button class="settings-button" type="button">+</button>
-    <button class="move-up-or-down-button" @onclick="MoveUp"><img class="move-up-or-down-image" src="/Assets/caret-top.svg" alt="caret top"></button>
-    <button class="move-up-or-down-button" @onclick="MoveDown"><img class="move-up-or-down-image" src="/Assets/caret-bottom.svg" alt="caret bottom"></button>
+    
+    @if (Index > 0)
+    {
+        <button class="move-up-or-down-button" @onclick="MoveUp"><img class="move-up-or-down-image" src="/Assets/caret-top.svg" alt="caret top"></button>
+    }
+    @if (Index < TotalStations -1)
+    {
+        <button class="move-up-or-down-button" @onclick="MoveDown"><img class="move-up-or-down-image" src="/Assets/caret-bottom.svg" alt="caret bottom"></button>
+    }
 </div>
 
 @code {
     [Parameter]
     public int Index { get; set; }
+
+    [Parameter]
+    public int TotalStations { get; set; }
 
     [Parameter]
     public string StationName { get; set; }

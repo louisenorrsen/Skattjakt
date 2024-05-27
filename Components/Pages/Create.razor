@@ -9,7 +9,7 @@
     <div class="station-table">
         @for (int i = 0; i < Locations.Count; i++)
         {
-            <StationItem Index=@i StationName="@Locations[i].Latitude.ToString()" OnMoveUp="MoveUp" OnMoveDown="MoveDown"/>
+            <StationItem Index=@i TotalStations="@Locations.Count" StationName="@Locations[i].Latitude.ToString()" OnMoveUp="MoveUp" OnMoveDown="MoveDown"/>
         }
     </div>
 </div>
