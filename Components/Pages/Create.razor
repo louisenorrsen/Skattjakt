@@ -1,29 +1,109 @@
 @page "/Skapa/{mapName}"
 @using Skattjakt.Data
+@using BrowserInterop.Extensions
+@using BrowserInterop.Geolocation
+@inject IJSRuntime jsR
+@implements IAsyncDisposable
+
 @inject TreasureMapService treasureMapService;
 @inject NavigationManager Navigation
 
-<h1>@Map.Name</h1>
-<RealTimeMap height="460px" width="620px"></RealTimeMap>
 
+<h1>@Map.Name</h1>
+
+<RealTimeMap Parameters="@parameters" height="460px" width="620px"></RealTimeMap>
+
+<button type="button" @onclick="GetGeoLocation">Get Pos</button>
+<button type="button" @onclick="WatchPosition">Watch Pos</button>
+<button type="button" @onclick="StopWatch">Stop Watch Pos</button>
+
+ @if (currentPosition != null)
+{
+    <div>
+        Current Position :
+        <ul>
+            <li>Latitude: @currentPosition.Location.Coords.Latitude </li>
+            <li>Longitude: @currentPosition.Location.Coords.Longitude</li>
+            <li>Altitude: @currentPosition.Location.Coords.Altitude</li>
+            <li>Accuracy: @currentPosition.Location.Coords.Accuracy</li>
+            <li>AltitudeAccuracy: @currentPosition.Location.Coords.AltitudeAccuracy</li>
+            <li>Heading: @currentPosition.Location.Coords.Heading</li>
+            <li>Speed: @currentPosition.Location.Coords.Speed</li>
+        </ul>
+    </div>
+}
+@foreach (var item in positionHistory)
+{
+    <div>
+        <ul>
+            <li>@item.Coords.Latitude</li>
+            <li>@item.Coords.Longitude</li>
+        </ul>
+    </div>
+}
 @code {
+    static string? latstring { get; set; }
+    static string? lngstring { get; set; }
+    static double lat = 44.1107672;
+    static double lng = 26.4501715;
     [Parameter]
     public string MapName { get; set; }
-
     private TreasureMap Map { get; set; }
 
     protected override void OnInitialized()
     {
         Map = new TreasureMap(MapName);
         treasureMapService.AddMap(Map);
+        System.Diagnostics.Debug.Print("INITIALIZED");
     }
-RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters()  //general map settings
+
+    private WindowNavigatorGeolocation geolocationWrapper;
+    private GeolocationResult currentPosition;
+    private List<GeolocationPosition> positionHistory = new List<GeolocationPosition>();
+    private IAsyncDisposable geopositionWatcher;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var window = await jsR.Window();
+        var navigator = await window.Navigator();
+        geolocationWrapper = navigator.Geolocation;
+        System.Diagnostics.Debug.Print("INITIALIZED ASYNC");
+    }
+
+    RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters()
         {
             location = new RealTimeMap.Location()
             {
-                latitude = 44.4501715,
-                longitude = 26.1107672,
+                latitude = lat,
+                longitude = lng,
             },
-            zoom_level = 18
-        };    
+            zoom_level = 10
+        };
+
+    public async Task GetGeoLocation()
+    {
+        currentPosition = (await geolocationWrapper.GetCurrentPosition(new PositionOptions()
+            {
+                EnableHighAccuracy = true,
+                MaximumAgeTimeSpan = TimeSpan.FromHours(1),
+                TimeoutTimeSpan = TimeSpan.FromMinutes(1)
+            }
+        ));
+    }
+    public async Task WatchPosition()
+    {
+        geopositionWatcher = await geolocationWrapper.WatchPosition(async (p) =>
+        {
+            positionHistory.Add(p.Location);
+        });
+    }
+    public async Task StopWatch()
+    {
+        await geopositionWatcher.DisposeAsync();
+        geopositionWatcher = null;
+    }
+    public async ValueTask DisposeAsync()
+    {
+        await StopWatch();
+    }
 }
