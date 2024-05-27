@@ -62,11 +62,25 @@
     [Parameter]
     public string MapName { get; set; }
 
+    /// <summary>
+    /// List of Stations that will be displayed as StationItem components
+    /// </summary>
     public List<Station> Locations = new List<Station>();
+
+    /// <summary>
+    /// List of StreamPoints that will be displayed on the map
+    /// </summary>
     public List<RealTimeMap.StreamPoint> StreamPoints = new List<RealTimeMap.StreamPoint>();
+
+    /// <summary>
+    /// Reference to the RealTimeMap component
+    /// </summary>
     RealTimeMap? realTimeMap;
     RealTimeMap.LoadParameters parameters = null;
-    
+
+    /// <summary>
+    /// A Map object that will be added to the TreasureMapService when all stations are added and validated
+    /// </summary>
     private TreasureMap Map { get; set; }
 
     private WindowNavigatorGeolocation geolocationWrapper;
@@ -79,11 +93,6 @@
         Map = new TreasureMap(MapName);
         treasureMapService.AddMap(Map);
         System.Diagnostics.Debug.Print("INITIALIZED");
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        System.Diagnostics.Debug.Print("INITIALIZED ASYNC");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -137,6 +146,10 @@
         }
     }
 
+    /// <summary>
+    /// Moves a station up in the list of stations
+    /// </summary>
+    /// <param name="index">The current index of the station</param>
     private void MoveUp(int index)
     {
         if (index > 0)
@@ -147,6 +160,10 @@
         }
     }
 
+    /// <summary>
+    /// Moves a station down in the list of stations
+    /// </summary>
+    /// <param name="index">The current index of the station</param>
     private void MoveDown(int index)
     {
         if (index < Locations.Count - 1)
@@ -157,23 +174,31 @@
         }
     }
 
-    public void GetPositionFromMapClick(RealTimeMap.ClicksMapArgs clickValue)
+    /// <summary>
+    /// Adds a station to the list of stations when the map is clicked
+    /// </summary>
+    /// <param name="clickPosition">The longitude and latitude where the user clicked</param>
+    public void GetPositionFromMapClick(RealTimeMap.ClicksMapArgs clickPosition)
     {
+        // Add a new station that will be displayed in the list of stations
         Locations.Add(new Station() 
         { 
-            Location = new LocationCoordinate(clickValue.location.latitude, clickValue.location.longitude),
-            Name = $"{clickValue.location.latitude}, {clickValue.location.longitude}",
+            Location = new LocationCoordinate(clickPosition.location.latitude, clickPosition.location.longitude),
+            Name = $"{clickPosition.location.latitude}, {clickPosition.location.longitude}",
             Id = Locations.Count + 1
         });
 
+        // Add a new StreamPoint to the list of StreamPoints that will be displayed on the map
         StreamPoints.Add(new RealTimeMap.StreamPoint() 
         { 
-            latitude = clickValue.location.latitude, 
-            longitude = clickValue.location.longitude,
+            latitude = clickPosition.location.latitude, 
+            longitude = clickPosition.location.longitude,
             guid = Guid.NewGuid(),
+            // The value is set to the Id of the latest created station
             value = Locations.Last().Id.ToString()
         });
 
+        // Define the appearance of the points on the map
         realTimeMap.Geometric.Points.Appearance().pattern = new RealTimeMap.PointSymbol()
         {
             color = "red",
@@ -182,14 +207,16 @@
             radius = 10,
         };
 
+        // Define the appearance of the points tooltip
         realTimeMap.Geometric.Points.Appearance().pattern = new RealTimeMap.PointTooltip()
         {
+            // the value is set when the StreamPoint is created and added to the StreamPoint list
             content = "${value}",
             opacity = 0.8,
             permanent = true
         };
 
+        // Upload the StreamPoints to the map
         realTimeMap.Geometric.Points.upload(StreamPoints, true);
-
     }
 }
