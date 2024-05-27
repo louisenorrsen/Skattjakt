@@ -2,6 +2,7 @@
 @using Skattjakt.Data
 @using BrowserInterop.Extensions
 @using BrowserInterop.Geolocation
+@using System.Diagnostics
 @inject IJSRuntime jsR
 @implements IAsyncDisposable
 
@@ -10,25 +11,24 @@
 
 <h1 class="map-name-title">@Map.Name</h1>
 <div class="create-stations">
-  @if (parameters != null)
+    @if (parameters != null)
     {
-        <RealTimeMap Parameters="@parameters" height="460px" width="620px"></RealTimeMap>
+        <RealTimeMap @ref="realTimeMap" Parameters="@parameters" height="460px" width="620px" OnClickMap="GetPositionFromMapClick"></RealTimeMap>
     }
 
     <div class="station-table">
         @for (int i = 0; i < Locations.Count; i++)
         {
-            <StationItem Station="@Locations[i]" Index=@i TotalStations="@Locations.Count" OnMoveUp="MoveUp" OnMoveDown="MoveDown"/>
+            <StationItem Station="@Locations[i]" Index=@i TotalStations="@Locations.Count" OnMoveUp="MoveUp" OnMoveDown="MoveDown" />
         }
     </div>
 </div>
-<button class="fake-location-button" type="button" @onclick="CreateFakeLocation">Lägg till position</button>
 
 <button type="button" @onclick="GetGeoLocation">Get Pos</button>
 <button type="button" @onclick="WatchPosition">Watch Pos</button>
 <button type="button" @onclick="StopWatch">Stop Watch Pos</button>
 
- @if (currentPosition != null)
+@if (currentPosition != null)
 {
     <div>
         Current Position :
@@ -62,22 +62,10 @@
     public string MapName { get; set; }
 
     public List<Station> Locations = new List<Station>();
-
-    public List<LocationCoordinate> FakeLocations = new List<LocationCoordinate>()
-    {
-        new LocationCoordinate(59.3293, 18.0686),
-        new LocationCoordinate(57.7089, 11.9746),
-        new LocationCoordinate(55.604981, 13.003822),
-        new LocationCoordinate(63.8258, 20.2630),
-        new LocationCoordinate(65.5848, 22.1547),
-        new LocationCoordinate(59.8586, 17.6389),
-        new LocationCoordinate(59.6162, 16.5528),
-        new LocationCoordinate(58.4108, 15.6214),
-        new LocationCoordinate(56.1612, 15.5869),
-        new LocationCoordinate(59.2741, 15.2066)
-    };
+    public List<RealTimeMap.StreamPoint> StreamPoints = new List<RealTimeMap.StreamPoint>();
+    RealTimeMap? realTimeMap;
     RealTimeMap.LoadParameters parameters = null;
-
+    
     private TreasureMap Map { get; set; }
 
     private WindowNavigatorGeolocation geolocationWrapper;
@@ -107,14 +95,14 @@
         await GetGeoLocation();
 
         parameters = new RealTimeMap.LoadParameters()
+        {
+            location = new RealTimeMap.Location()
             {
-                location = new RealTimeMap.Location()
-                {
-                    latitude = currentPosition.Location.Coords.Latitude,
-                    longitude = currentPosition.Location.Coords.Longitude,
-                },
-                zoom_level = 17
-            };
+                latitude = currentPosition.Location.Coords.Latitude,
+                longitude = currentPosition.Location.Coords.Longitude,
+            },
+            zoom_level = 17
+        };
     }
 
     public async Task GetGeoLocation()
@@ -148,12 +136,6 @@
         }
     }
 
-    private void CreateFakeLocation()
-    {
-        Random random = new Random();
-        Locations.Add(new Station() { Location = FakeLocations[random.Next(1, FakeLocations.Count)] });
-    }
-
     private void MoveUp(int index)
     {
         if (index > 0)
@@ -172,5 +154,31 @@
             Locations[index] = Locations[index + 1];
             Locations[index + 1] = temp;
         }
+    }
+
+    public void GetPositionFromMapClick(RealTimeMap.ClicksMapArgs value)
+    {
+        Locations.Add(new Station() 
+        { 
+            Location = new LocationCoordinate(value.location.latitude, value.location.longitude),
+            Name = $"{value.location.latitude}, {value.location.longitude}"
+        });
+
+        StreamPoints.Add(new RealTimeMap.StreamPoint() 
+        { 
+            latitude = value.location.latitude, 
+            longitude = value.location.longitude            
+        });
+
+        realTimeMap.Geometric.Points.Appearance().pattern = new RealTimeMap.PointSymbol()
+        {
+            color = "red",
+            fillColor = "red",
+            fillOpacity = 0.7,
+            radius = 10,
+        };
+
+        realTimeMap.Geometric.Points.upload(StreamPoints, true);
+
     }
 }
