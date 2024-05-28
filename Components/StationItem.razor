@@ -31,6 +31,8 @@
     [Parameter]
     public EventCallback<int> OnMoveDown { get; set; }
 
+
+    // Methods for moving stations up and down in the list of stations
     private async Task MoveUp()
     {
         await OnMoveUp.InvokeAsync(Index);
