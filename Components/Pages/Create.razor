@@ -5,9 +5,8 @@
 @using BrowserInterop.Geolocation
 @using System.Diagnostics
 @inject IJSRuntime jsR
-@implements IAsyncDisposable
-
-@inject TreasureMapService treasureMapService;
+@inject NavigationManager NavManager
+@inject TreasureMapService treasureMapService
 @inject NavigationManager Navigation
 
 <h1 class="map-name-title">@Map!.Name</h1>
@@ -25,9 +24,9 @@
     </div>
 </div>
 
-<button type="button" @onclick="GetGeoLocation">Get Pos</button>
-<button type="button" @onclick="WatchPosition">Watch Pos</button>
-<button type="button" @onclick="StopWatch">Stop Watch Pos</button>
+<button type="button" @onclick="GetGeoLocation">Hitta Position</button>
+<button type="button" @onclick="NavigateToSetup">Till Inställningar</button>
+<p>Vidare till vilkor...</p>
 
 @if (currentPosition != null)
 {
@@ -118,25 +117,6 @@
                 TimeoutTimeSpan = TimeSpan.FromMinutes(1)
             }
         ));
-    }
-    public async Task WatchPosition()
-    {
-        geopositionWatcher = await geolocationWrapper!.WatchPosition(async (p) =>
-        {
-            positionHistory.Add(p.Location);
-        });
-    }
-    public async Task StopWatch()
-    {
-        await geopositionWatcher!.DisposeAsync();
-        geopositionWatcher = null;
-    }
-    public async ValueTask DisposeAsync()
-    {
-        if(geopositionWatcher != null)
-        {
-            await StopWatch();
-        }
     }
 
     /// <summary>
@@ -272,5 +252,15 @@
 
         // Upload the StreamPoints to the map
         realTimeMap.Geometric.Points.upload(StreamPoints, true);
+    }
+    /// <summary>
+    /// TODO Save the map (Made it async because that may take some time)
+    /// And navigate to setup page
+    /// </summary>
+    /// <returns></returns>
+    private async Task NavigateToSetup()
+    {
+        await Task.Delay(100);
+        NavManager.NavigateTo($"/Vilkor/{Map!.Name}");
     }
 }

@@ -1,0 +1,57 @@
+﻿@page "/Vilkor/{mapName}"
+@using Skattjakt.Data
+
+<h3>Inställningar</h3>
+<h1 class="map-name-title">@Map!.Name</h1>
+
+<EditForm Model="@settings">
+    <DataAnnotationsValidator />
+    <div style="background-color:burlywood; display: flex; justify-content: space-between; align-items: stretch;flex-direction: column;">
+
+        <div class="form-group">
+            <label for="firstName">Tidsbegränsning:</label>
+            <InputText id="firstName" class="form-control" @bind-Value="@settings.TimeLimit" />
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+
+            <div class="form-group">
+                <label for="lastName">Synlighet:</label>
+                <InputCheckbox id="lastName" class="form-control" @bind-Value="@settings.Visible" />
+            </div>
+
+            <div class="form-group">
+                <label for="email">Visa Alla:</label>
+                <InputCheckbox id="email" class="form-control" @bind-Value="@settings.ShowAll" />
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Spara</button>
+    </div>
+
+</EditForm>
+
+@code {
+}
+
+@code {
+    [Parameter]
+    public string? MapName { get; set; }
+    private TreasureMap? Map { get; set; }
+
+    private SettingsModel settings = new SettingsModel();
+
+    public class SettingsModel
+    {
+        public string? TimeLimit { get; set; }
+        public bool Visible { get; set; }
+        public bool ShowAll { get; set; }
+    }
+
+    protected override void OnInitialized()
+    {
+        Map = new TreasureMap(MapName!);
+        // treasureMapService.AddMap(Map);
+        System.Diagnostics.Debug.Print("SETUP INITIALIZED");
+    }
+}
