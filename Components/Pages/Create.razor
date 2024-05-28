@@ -10,7 +10,7 @@
 @inject TreasureMapService treasureMapService;
 @inject NavigationManager Navigation
 
-<h1 class="map-name-title">@Map.Name</h1>
+<h1 class="map-name-title">@Map!.Name</h1>
 <div class="create-stations">
     @if (parameters != null)
     {
@@ -54,13 +54,8 @@
     </div>
 }
 @code {
-    static string? latstring { get; set; }
-    static string? lngstring { get; set; }
-    static double lat = 44.1107672;
-    static double lng = 26.4501715;
-
     [Parameter]
-    public string MapName { get; set; }
+    public string? MapName { get; set; }
 
     /// <summary>
     /// List of Stations that will be displayed as StationItem components
@@ -76,21 +71,21 @@
     /// Reference to the RealTimeMap component
     /// </summary>
     RealTimeMap? realTimeMap;
-    RealTimeMap.LoadParameters parameters = null;
+    RealTimeMap.LoadParameters? parameters = null;
 
     /// <summary>
     /// A Map object that will be added to the TreasureMapService when all stations are added and validated
     /// </summary>
-    private TreasureMap Map { get; set; }
+    private TreasureMap? Map { get; set; }
 
-    private WindowNavigatorGeolocation geolocationWrapper;
-    private GeolocationResult currentPosition;
+    private WindowNavigatorGeolocation? geolocationWrapper;
+    private GeolocationResult? currentPosition;
     private List<GeolocationPosition> positionHistory = new List<GeolocationPosition>();
     private IAsyncDisposable? geopositionWatcher;
 
     protected override void OnInitialized()
     {
-        Map = new TreasureMap(MapName);
+        Map = new TreasureMap(MapName!);
         treasureMapService.AddMap(Map);
         System.Diagnostics.Debug.Print("INITIALIZED");
     }
@@ -101,14 +96,13 @@
         var window = await jsR.Window();
         var navigator = await window.Navigator();
         geolocationWrapper = navigator.Geolocation;
-        //return base.OnAfterRenderAsync(firstRender);
         await GetGeoLocation();
 
         parameters = new RealTimeMap.LoadParameters()
         {
             location = new RealTimeMap.Location()
             {
-                latitude = currentPosition.Location.Coords.Latitude,
+                latitude = currentPosition!.Location.Coords.Latitude,
                 longitude = currentPosition.Location.Coords.Longitude,
             },
             zoom_level = 17
@@ -117,7 +111,7 @@
 
     public async Task GetGeoLocation()
     {
-        currentPosition = (await geolocationWrapper.GetCurrentPosition(new PositionOptions()
+        currentPosition = (await geolocationWrapper!.GetCurrentPosition(new PositionOptions()
             {
                 EnableHighAccuracy = true,
                 MaximumAgeTimeSpan = TimeSpan.FromHours(1),
@@ -127,12 +121,11 @@
     }
     public async Task WatchPosition()
     {
-        geopositionWatcher = await geolocationWrapper.WatchPosition(async (p) =>
+        geopositionWatcher = await geolocationWrapper!.WatchPosition(async (p) =>
         {
             positionHistory.Add(p.Location);
         });
     }
-    // BUG Varför anroppas den här på reload
     public async Task StopWatch()
     {
         await geopositionWatcher!.DisposeAsync();
@@ -199,7 +192,7 @@
         });
 
         // Define the appearance of the points on the map
-        realTimeMap.Geometric.Points.Appearance().pattern = new RealTimeMap.PointSymbol()
+        realTimeMap!.Geometric.Points.Appearance().pattern = new RealTimeMap.PointSymbol()
         {
             color = "red",
             fillColor = "red",
