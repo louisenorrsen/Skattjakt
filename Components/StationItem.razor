@@ -1,18 +1,45 @@
 ﻿@using Skattjakt.Data
 
 <div class="station-row">
+    <button class="delete-station-button" type="button" @onclick="DeleteStation">x</button>
     <div class="station-id">@(Index + 1)</div>
     <input class="station-name-input" type="text" @bind="Station.Name" />
-    <button class="settings-button" type="button">+</button>
-    
+    <button class="settings-button" type="button" @onclick="ToggleSettings">+</button>
+
     @if (Index > 0)
     {
         <button class="move-up-or-down-button" @onclick="MoveUp"><img class="move-up-or-down-image" src="/Assets/caret-top.svg" alt="caret top"></button>
     }
-    @if (Index < TotalStations -1)
+    @if (Index < TotalStations - 1)
     {
         <button class="move-up-or-down-button" @onclick="MoveDown"><img class="move-up-or-down-image" src="/Assets/caret-bottom.svg" alt="caret bottom"></button>
     }
+
+    @if (IsSettingsOpen)
+    {
+        <div class="settings-window">
+            <div class="settings-content">
+                <div class="settings-title-row">
+                    @if (IsEditing)
+                    {
+                        <input class="station-name-settings-input" type="text" @bind="Station.Name" placeholder="@Station.Name" />
+                        <button class="edit-toggle-button" @onclick="ToggleEdit"><img class="edit-toggle-image" src="/Assets/check.svg" alt="edit" /></button>
+                    }
+                    else
+                    {
+                        <p class="settings-title" @onclick="ToggleEdit">@Station.Name</p>
+                        <button class="edit-toggle-button" @onclick="ToggleEdit"><img class="edit-toggle-image" src="/Assets/pencil.svg" alt="edit" /></button>
+                    }
+                </div>
+                <p>Latitude: @Station.Location.Latitude</p>
+                <p>Longitude: @Station.Location.Longitude</p>
+                <p>Ange stationens uppdrag</p>
+                <textarea class="station-assignment-textarea" @bind="Station.Assignment"></textarea>
+                <button class="confirm-settings-button" @onclick="ToggleSettings">Spara inställningar</button>
+            </div>
+        </div>
+    }
+
 </div>
 
 @code {
@@ -31,6 +58,13 @@
     [Parameter]
     public EventCallback<int> OnMoveDown { get; set; }
 
+    // Prepare for deleting a station, pass the method from the parent component to this component
+    [Parameter]
+    public EventCallback<int> OnDelete { get; set; }
+
+    // Properties for toggling settings and editing
+    private bool IsSettingsOpen { get; set; } = false;
+    private bool IsEditing { get; set; } = false;
 
     // Methods for moving stations up and down in the list of stations
     private async Task MoveUp()
@@ -41,5 +75,26 @@
     private async Task MoveDown()
     {
         await OnMoveDown.InvokeAsync(Index);
+    }
+
+    private async Task DeleteStation()
+    {
+        await OnDelete.InvokeAsync(Index);
+    }
+
+    /// <summary>
+    /// Method for toggling the settings window
+    /// </summary>
+    private void ToggleSettings()
+    {
+        IsSettingsOpen = !IsSettingsOpen;
+    }
+
+    /// <summary>
+    /// Method for toggling the edit station name
+    /// </summary>
+    private void ToggleEdit()
+    {
+        IsEditing = !IsEditing;
     }
 }
