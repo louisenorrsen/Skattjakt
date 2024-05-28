@@ -2,6 +2,7 @@
 {
     public class TreasureMap
     {
+        // Add more properties here when needed
         public string Name { get; set; }
         public List<Station> Stations { get; set; }
 
