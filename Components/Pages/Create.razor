@@ -14,7 +14,7 @@
 <div class="create-stations">
     @if (parameters != null)
     {
-        <RealTimeMap @ref="realTimeMap" Parameters="@parameters" height="460px" width="620px" OnClickMap="GetPositionFromMapClick"></RealTimeMap>
+        <RealTimeMap @ref="realTimeMap" Parameters="@parameters" height="460px" width="620px" OnClickMap="AddPositonAndStreamPoint"></RealTimeMap>
     }
 
     <div class="station-table">
@@ -147,31 +147,92 @@
     {
         if (index > 0)
         {
-            var temp = Locations[index];
+            Skattjakt.Data.Station temp = Locations[index];
             Locations[index] = Locations[index - 1];
             Locations[index - 1] = temp;
+
+            StreamPoints[index].value = index;
+            StreamPoints[index-1].value = index+1;
+
+            realTimeMap!.Geometric.Points.update(StreamPoints[index]);
+            realTimeMap.Geometric.Points.update(StreamPoints[index-1]);
+
+            MoveUpInStreamPoints(index);
+        }
+    }
+    /// <summary>
+    /// Move the streampoint up in StreamPoints
+    /// </summary>
+    /// <param name="index"></param>
+    private void SwapStreamPointValues(int indexA,int indexB)
+    {}
+    private void MoveUpInStreamPoints(int index)
+    {
+        if (index > 0)
+        {
+            // Find the StreamPoints that correspond to the Locations being swapped
+            var streamPoint1 = StreamPoints[index];
+            var streamPoint2 = StreamPoints[index - 1];
+
+            // Swap the StreamPoints if both are found
+            if (streamPoint1 != null && streamPoint2 != null)
+            {
+                StreamPoints[index] = streamPoint2;
+                StreamPoints[index - 1] = streamPoint1;
+            }
         }
     }
 
     /// <summary>
     /// Moves a station down in the list of stations
+    /// Replace values of the realTimeMap points
     /// </summary>
     /// <param name="index">The current index of the station</param>
     private void MoveDown(int index)
     {
         if (index < Locations.Count - 1)
         {
-            var temp = Locations[index];
+            Skattjakt.Data.Station temp = Locations[index];
             Locations[index] = Locations[index + 1];
             Locations[index + 1] = temp;
+
+            StreamPoints[index].value = index + 2;
+            StreamPoints[index + 1].value = index + 1;
+
+            System.Diagnostics.Debug.Print(StreamPoints[index].value.ToString() + " " + StreamPoints[index + 1].value.ToString());
+
+            realTimeMap!.Geometric.Points.update(StreamPoints[index]);
+            realTimeMap.Geometric.Points.update(StreamPoints[index + 1]);
+            MoveDownInStreamPoints(index);
+
         }
     }
+    /// <summary>
+    /// Move the streampoint down in StreamPoints
+    /// </summary>
+    /// <param name="index"></param>
+    private void MoveDownInStreamPoints(int index)
+    {
+        if (index < Locations.Count - 1)
+        {
+            // Find the StreamPoints that correspond to the Locations being swapped
+            var streamPoint1 = StreamPoints[index];
+            var streamPoint2 = StreamPoints[index + 1];
 
+            // Swap the StreamPoints if both are found
+            if (streamPoint1 != null && streamPoint2 != null)
+            {
+                StreamPoints[index] = streamPoint2;
+                StreamPoints[index + 1] = streamPoint1;
+            }
+        }
+    }
     /// <summary>
     /// Adds a station to the list of stations when the map is clicked
     /// </summary>
     /// <param name="clickPosition">The longitude and latitude where the user clicked</param>
-    public void GetPositionFromMapClick(RealTimeMap.ClicksMapArgs clickPosition)
+    /// Förslag, byt namn till AddPositonAndStreamPoint
+    public void AddPositonAndStreamPoint(RealTimeMap.ClicksMapArgs clickPosition)
     {
         // Add a new station that will be displayed in the list of stations
         Locations.Add(new Station() 
