@@ -1,18 +1,25 @@
-﻿body {
-}
-
-.formdiv {
-    background-color:burlywood;
+﻿.formdiv {
+    border-radius: 15px;
+    background-color: yellowgreen;
     display: flex;
-    justify-content:space-between;
+    justify-content: space-between;
     align-items: stretch;
     flex-direction: column;
+    padding: 40px;
 }
 .chk-group {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
 }
-.form-group{
-
+.nrinput {
+    width:25%;
+    border-radius: 6px;
+}
+.flex-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 }

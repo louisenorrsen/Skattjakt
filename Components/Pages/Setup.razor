@@ -8,24 +8,24 @@
     <DataAnnotationsValidator />
      <div class="formdiv">
  
-        <div class="form-group">
-            <label for="firstName">Tidsbegränsning:</label>
-            <InputNumber id="firstName" class="form-control" @bind-Value="@settings.TimeLimit" />
-            <label for="firstName">Minuter</label>
+        <div class="form-group flex-container">
+            <label for="maxTime">Tid (Minuter): </label>
+            <InputNumber id="maxTime" class="form-control nrinput" style="width:25%; height:border-radius: 6px;" @bind-Value="@settings.TimeLimit" />
         </div>
-
+        <br />
         <div class="chk-group">
-
-            <div class="form-group">
+            <div class="form-group flex-container">
                 <label for="lastName">Synlighet:</label>
-                <InputCheckbox id="visible-btn" class="form-control" @bind-Value="@settings.Visible" />
+                <InputCheckbox id="visible-btn" class="form-control" style="transform:scale(1.5);" @bind-Value="@settings.Visible" />
             </div>
+            <br />
 
-            <div class="form-group">
+            <div class="form-group  flex-container">
                 <label for="email">Visa Alla:</label>
-                <InputCheckbox id="show-all-btn" class="form-control" @bind-Value="@settings.ShowAll" />
+                <InputCheckbox id="show-all-btn" class="form-control" style="transform: scale(1.5);" @bind-Value="@settings.ShowAll" />
             </div>
         </div>
+        <br />
 
         <button type="submit" class="btn btn-primary">Spara</button>
      </div>
