@@ -19,3 +19,13 @@
         margin-top: 1rem;
 
 }
+
+.btn-map-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.btn-row {
+    display: flex;
+    flex-direction: row;
+}
