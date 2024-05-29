@@ -1,0 +1,18 @@
+﻿body {
+}
+
+.formdiv {
+    background-color:burlywood;
+    display: flex;
+    justify-content:space-between;
+    align-items: stretch;
+    flex-direction: column;
+}
+.chk-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.form-group{
+
+}
