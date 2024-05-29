@@ -7,13 +7,7 @@ namespace Skattjakt.Data
         // List of all treasure maps in the system. Possible to read from a database in the future, or from a local file.
         public List<TreasureMap> Maps { get; set; } = new List<TreasureMap>();
 
-        public TreasureMapService()
-        {
-            // Mockup maps for future testing
-            Maps.Add(new TreasureMap("Map 1"));
-            Maps.Add(new TreasureMap("Map 2"));
-            Maps.Add(new TreasureMap("Map 3"));
-        }
+        public TreasureMapService() { }
 
         // Add a new treasure map to the list in the service
         public void AddMap(TreasureMap newMap)

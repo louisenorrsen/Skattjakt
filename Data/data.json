@@ -1,22 +1,7 @@
 [
   {
-    "Name": "Map 1",
-    "Id": 1,
-    "Stations": null
-  },
-  {
-    "Name": "Map 2",
-    "Id": 2,
-    "Stations": null
-  },
-  {
-    "Name": "Map 3",
-    "Id": 3,
-    "Stations": null
-  },
-  {
     "Name": "Min Karta",
-    "Id": 4,
+    "Id": 1,
     "Stations": [
       {
         "Id": 1,
@@ -49,7 +34,7 @@
   },
   {
     "Name": "Motionsslingan Påskallavik",
-    "Id": 5,
+    "Id": 2,
     "Stations": [
       {
         "Id": 1,
