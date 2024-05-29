@@ -272,7 +272,13 @@
         StreamPoints.Remove(pointToRemove);        
         Locations.Remove(stationToRemove);
 
-        // BUG: The StreamPoints are not updated when a station is deleted
+        // Update the Ids of the Stations and StreamPoints
+        for (int i = 0; i < Locations.Count; i++)
+        {
+            Locations[i].Id = i + 1;
+            StreamPoints[i].value = i + 1;
+            realTimeMap!.Geometric.Points.update(StreamPoints[i]);
+        }
     }
 
     /// <summary>
