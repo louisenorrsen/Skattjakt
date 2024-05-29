@@ -19,7 +19,7 @@
     <div class="station-table">
         @for (int i = 0; i < Locations.Count; i++)
         {
-            <StationItem Station="@Locations[i]" Index=@i TotalStations="@Locations.Count" OnMoveUp="MoveUp" OnMoveDown="MoveDown" />
+            <StationItem Station="@Locations[i]" Index=@i TotalStations="@Locations.Count" OnDelete="Delete" OnMoveUp="MoveUp" OnMoveDown="MoveDown" />
         }
     </div>
 </div>
@@ -80,7 +80,6 @@
     private WindowNavigatorGeolocation? geolocationWrapper;
     private GeolocationResult? currentPosition;
     private List<GeolocationPosition> positionHistory = new List<GeolocationPosition>();
-    private IAsyncDisposable? geopositionWatcher;
 
     protected override void OnInitialized()
     {
@@ -217,22 +216,26 @@
     public void AddPositonAndStreamPoint(RealTimeMap.ClicksMapArgs clickPosition)
     {
         // Add a new station that will be displayed in the list of stations
-        Locations.Add(new Station() 
-        { 
+        Station station = new Station()
+        {
             Location = new LocationCoordinate(clickPosition.location.latitude, clickPosition.location.longitude),
             Name = $"{clickPosition.location.latitude}, {clickPosition.location.longitude}",
             Id = Locations.Count + 1
-        });
+        };
+        Locations.Add(station);
 
         // Add a new StreamPoint to the list of StreamPoints that will be displayed on the map
-        StreamPoints.Add(new RealTimeMap.StreamPoint() 
-        { 
-            latitude = clickPosition.location.latitude, 
+        RealTimeMap.StreamPoint streamPoint = new RealTimeMap.StreamPoint()
+        {
+            latitude = clickPosition.location.latitude,
             longitude = clickPosition.location.longitude,
             guid = Guid.NewGuid(),
-            // The value is set to the Id of the latest created station
             value = Locations.Last().Id.ToString()
-        });
+        };
+        StreamPoints.Add(streamPoint);
+
+        // Set the Station guid to the StreamPoint guid
+        station.PointOnMapGuid = streamPoint.guid;
 
         // Define the appearance of the points on the map
         realTimeMap!.Geometric.Points.Appearance().pattern = new RealTimeMap.PointSymbol()
@@ -254,7 +257,24 @@
 
         // Upload the StreamPoints to the map
         realTimeMap.Geometric.Points.upload(StreamPoints, true);
+
     }
+
+    private void Delete(Guid guid)
+    {
+        Station? stationToRemove = Locations.Find(station => station.PointOnMapGuid == guid);
+        RealTimeMap.StreamPoint? pointToRemove = StreamPoints.Find(sp => sp.guid == guid);
+        if (stationToRemove == null || pointToRemove == null)
+        {
+            return;
+        }
+        realTimeMap!.Geometric.Points.delete(pointToRemove.guid.ToString());
+        StreamPoints.Remove(pointToRemove);        
+        Locations.Remove(stationToRemove);
+
+        // BUG: The StreamPoints are not updated when a station is deleted
+    }
+
     /// <summary>
     /// TODO Save the map (Made it async because that may take some time)
     /// And navigate to setup page
