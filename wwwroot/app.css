@@ -37,3 +37,23 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+button {
+    border-radius: 4px;
+    display: block;
+    width: 250px;
+    margin: 15px auto;
+    padding: 0px;
+    height: 30px;
+    border: none;
+    background-color: forestgreen;
+    color: white;
+    font-size: 16px;
+    letter-spacing: 1.5px;
+}
+
+button:disabled {
+    /* Your styling here */
+    opacity: 0.3; /* For example, reduce opacity to indicate the disabled state */
+    background-color: forestgreen;
+}

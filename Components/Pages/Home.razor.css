@@ -4,8 +4,8 @@
     text-align: center;
 }
 
-.map-name-button {
-    border-radius: 0px;
+/*.map-name-button {
+    border-radius: 4px;
     display: block;
     width: 250px;
     margin: 15px auto;
@@ -17,6 +17,12 @@
     font-size: 16px;
     letter-spacing: 1.5px;
 }
+
+button:disabled {*/
+    /* Your styling here */
+    /*opacity: 0.3;*/ /* For example, reduce opacity to indicate the disabled state */
+    /*background-color: forestgreen;
+}*/
 
 .map-name-input {
     width: 250px;
