@@ -1,5 +1,8 @@
 ﻿@page "/"
+@using Skattjakt.Data
 @inject NavigationManager NavManager
+@inject TreasureMapService treasureMapService
+
 <PageTitle>Skapa skattjakt</PageTitle>
 
 <form class="form-content">
@@ -12,6 +15,12 @@
 
 @code {
     private string MapName { get; set; } = "test";
+
+    // Add maps to service from file on initialization
+    protected override void OnInitialized()
+    {
+        treasureMapService.LoadMapsFromFile();
+    }
 
     private void CreateMap()
     {

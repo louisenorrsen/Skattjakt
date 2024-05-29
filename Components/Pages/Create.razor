@@ -84,8 +84,10 @@
 
     protected override void OnInitialized()
     {
-        Map = new TreasureMap(MapName!);
-        treasureMapService.AddMap(Map);
+        Map = new TreasureMap(MapName!)
+        {
+            Id = treasureMapService.GetNextId()
+        };
         System.Diagnostics.Debug.Print("INITIALIZED");
     }
 
@@ -260,6 +262,14 @@
     /// <returns></returns>
     private async Task NavigateToSetup()
     {
+        // Add the stations to the map
+        Map!.Stations = Locations;
+
+        // Add the map to the TreasureMapService
+        treasureMapService.AddMap(Map);
+
+        // TODO: Move this to Setup.razor to run when the user is done with the map
+        treasureMapService.SaveMapsToFile();
         await Task.Delay(100);
         NavManager.NavigateTo($"/Vilkor/{Map!.Name}");
     }
