@@ -11,10 +11,16 @@
 
 <h1 class="map-name-title">@Map!.Name</h1>
 <div class="create-stations">
+    <div class="btn-map-container">
     @if (parameters != null)
     {
         <RealTimeMap @ref="realTimeMap" Parameters="@parameters" height="460px" width="620px" OnClickMap="AddPositonAndStreamPoint"></RealTimeMap>
     }
+    <div class="btn-row">
+        <button type="button" @onclick="GetGeoLocation">Hitta Position</button>
+        <button type="button" @onclick="NavigateToSetup">Till InstÃ¤llningar</button>
+        </div>
+    </div>
 
     <div class="station-table">
         @for (int i = 0; i < Locations.Count; i++)
@@ -24,10 +30,6 @@
     </div>
 </div>
 
-<button type="button" @onclick="GetGeoLocation">Hitta Position</button>
-<button type="button" @onclick="NavigateToSetup">Till Inställningar</button>
-<p>Vidare till vilkor...</p>
-
 @if (currentPosition != null)
 {
     <div>
@@ -35,11 +37,6 @@
         <ul>
             <li>Latitude: @currentPosition.Location.Coords.Latitude </li>
             <li>Longitude: @currentPosition.Location.Coords.Longitude</li>
-            <li>Altitude: @currentPosition.Location.Coords.Altitude</li>
-            <li>Accuracy: @currentPosition.Location.Coords.Accuracy</li>
-            <li>AltitudeAccuracy: @currentPosition.Location.Coords.AltitudeAccuracy</li>
-            <li>Heading: @currentPosition.Location.Coords.Heading</li>
-            <li>Speed: @currentPosition.Location.Coords.Speed</li>
         </ul>
     </div>
 }
@@ -99,14 +96,14 @@
         await GetGeoLocation();
 
         parameters = new RealTimeMap.LoadParameters()
-        {
-            location = new RealTimeMap.Location()
             {
-                latitude = currentPosition!.Location.Coords.Latitude,
-                longitude = currentPosition.Location.Coords.Longitude,
-            },
-            zoom_level = 17
-        };
+                location = new RealTimeMap.Location()
+                {
+                    latitude = currentPosition!.Location.Coords.Latitude,
+                    longitude = currentPosition.Location.Coords.Longitude,
+                },
+                zoom_level = 17
+            };
     }
 
     public async Task GetGeoLocation()
@@ -133,10 +130,10 @@
             Locations[index - 1] = temp;
 
             StreamPoints[index].value = index;
-            StreamPoints[index-1].value = index+1;
+            StreamPoints[index - 1].value = index + 1;
 
             realTimeMap!.Geometric.Points.update(StreamPoints[index]);
-            realTimeMap.Geometric.Points.update(StreamPoints[index-1]);
+            realTimeMap.Geometric.Points.update(StreamPoints[index - 1]);
 
             MoveUpInStreamPoints(index);
         }
@@ -145,8 +142,8 @@
     /// Move the streampoint up in StreamPoints
     /// </summary>
     /// <param name="index"></param>
-    private void SwapStreamPointValues(int indexA,int indexB)
-    {}
+    private void SwapStreamPointValues(int indexA, int indexB)
+    { }
     private void MoveUpInStreamPoints(int index)
     {
         if (index > 0)
@@ -212,7 +209,7 @@
     /// Adds a station to the list of stations when the map is clicked
     /// </summary>
     /// <param name="clickPosition">The longitude and latitude where the user clicked</param>
-    /// Förslag, byt namn till AddPositonAndStreamPoint
+    /// FÃ¶rslag, byt namn till AddPositonAndStreamPoint
     public void AddPositonAndStreamPoint(RealTimeMap.ClicksMapArgs clickPosition)
     {
         // Add a new station that will be displayed in the list of stations
@@ -239,21 +236,21 @@
 
         // Define the appearance of the points on the map
         realTimeMap!.Geometric.Points.Appearance().pattern = new RealTimeMap.PointSymbol()
-        {
-            color = "red",
-            fillColor = "red",
-            fillOpacity = 0.7,
-            radius = 10,
-        };
+            {
+                color = "red",
+                fillColor = "red",
+                fillOpacity = 0.7,
+                radius = 10,
+            };
 
         // Define the appearance of the points tooltip
         realTimeMap.Geometric.Points.Appearance().pattern = new RealTimeMap.PointTooltip()
-        {
-            // the value is set when the StreamPoint is created and added to the StreamPoint list
-            content = "${value}",
-            opacity = 0.8,
-            permanent = true
-        };
+            {
+                // the value is set when the StreamPoint is created and added to the StreamPoint list
+                content = "${value}",
+                opacity = 0.8,
+                permanent = true
+            };
 
         // Upload the StreamPoints to the map
         realTimeMap.Geometric.Points.upload(StreamPoints, true);
