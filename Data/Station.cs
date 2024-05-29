@@ -14,8 +14,9 @@
     public class Station
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public LocationCoordinate Location { get; set; }
-        public string Assignment { get; set; }
+        public Guid PointOnMapGuid { get; set; }
+        public string? Assignment { get; set; }
     }
 }

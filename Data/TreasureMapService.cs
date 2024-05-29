@@ -5,7 +5,7 @@ namespace Skattjakt.Data
     public class TreasureMapService
     {
         // List of all treasure maps in the system. Possible to read from a database in the future, or from a local file.
-        public List<TreasureMap> Maps { get; set; } = new List<TreasureMap>();
+        public List<TreasureMap> Maps { get; set; } = [];
 
         public TreasureMapService() { }
 
@@ -24,7 +24,12 @@ namespace Skattjakt.Data
         // Get a specific treasure map by its id
         public TreasureMap GetMapById(int id)
         {
-            return Maps.FirstOrDefault(map => map.Id == id);
+            TreasureMap? map = Maps.FirstOrDefault(map => map.Id == id);
+            if (map == null)
+            {
+                throw new InvalidOperationException($"TreasureMap with Id {id} not found.");
+            }
+            else return map;
         }
 
         public int GetNextId()
@@ -51,7 +56,15 @@ namespace Skattjakt.Data
             else
             {
                 string json = File.ReadAllText("Data/data.json");
-                Maps = JsonConvert.DeserializeObject<List<TreasureMap>>(json);
+
+                // Deserialize the json string to a list of treasure maps
+                var maps = JsonConvert.DeserializeObject<List<TreasureMap>>(json);
+
+                // If the deserialization was successful, set the maps in the service to the deserialized maps
+                if (maps != null)
+                {
+                    Maps = maps;
+                }
             }
         }
     }
