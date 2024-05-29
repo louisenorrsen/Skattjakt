@@ -12,13 +12,13 @@
 <h1 class="map-name-title">@Map!.Name</h1>
 <div class="create-stations">
     <div class="btn-map-container">
-    @if (parameters != null)
-    {
-        <RealTimeMap @ref="realTimeMap" Parameters="@parameters" height="460px" width="620px" OnClickMap="AddPositonAndStreamPoint"></RealTimeMap>
-    }
-    <div class="btn-row">
-        <button type="button" @onclick="GetGeoLocation">Hitta Position</button>
-        <button type="button" @onclick="NavigateToSetup">Till Inställningar</button>
+        @if (parameters != null)
+        {
+            <RealTimeMap @ref="realTimeMap" Options="@options" Parameters="@parameters" height="460px" width="620px" OnClickMap="AddPositonAndStreamPoint" OnMouseDownMap="MovePointOnMouseDown" OnMouseUpMap="MovePointOnMouseUp"></RealTimeMap>
+        }
+        <div class="btn-row">
+            <button type="button" @onclick="GetGeoLocation">Hitta Position</button>
+            <button type="button" @onclick="NavigateToSetup">Till Inställningar</button>
         </div>
     </div>
 
@@ -68,6 +68,13 @@
     /// </summary>
     RealTimeMap? realTimeMap;
     RealTimeMap.LoadParameters? parameters = null;
+    RealTimeMap.MapOptions options = new RealTimeMap.MapOptions()
+    {
+        interaction_options = new RealTimeMap.InteractionOptions()
+        {
+            dragging = false
+        }
+    };
 
     /// <summary>
     /// A Map object that will be added to the TreasureMapService when all stations are added and validated
@@ -78,12 +85,14 @@
     private GeolocationResult? currentPosition;
     private List<GeolocationPosition> positionHistory = new List<GeolocationPosition>();
 
+    private RealTimeMap.StreamPoint? pointToMove;
+
     protected override void OnInitialized()
     {
         Map = new TreasureMap(MapName!)
-        {
-            Id = treasureMapService.GetNextId()
-        };
+            {
+                Id = treasureMapService.GetNextId()
+            };
         System.Diagnostics.Debug.Print("INITIALIZED");
     }
 
@@ -214,21 +223,21 @@
     {
         // Add a new station that will be displayed in the list of stations
         Station station = new Station()
-        {
-            Location = new LocationCoordinate(clickPosition.location.latitude, clickPosition.location.longitude),
-            Name = $"{clickPosition.location.latitude}, {clickPosition.location.longitude}",
-            Id = Locations.Count + 1
-        };
+            {
+                Location = new LocationCoordinate(clickPosition.location.latitude, clickPosition.location.longitude),
+                Name = $"{clickPosition.location.latitude}, {clickPosition.location.longitude}",
+                Id = Locations.Count + 1
+            };
         Locations.Add(station);
 
         // Add a new StreamPoint to the list of StreamPoints that will be displayed on the map
         RealTimeMap.StreamPoint streamPoint = new RealTimeMap.StreamPoint()
-        {
-            latitude = clickPosition.location.latitude,
-            longitude = clickPosition.location.longitude,
-            guid = Guid.NewGuid(),
-            value = Locations.Last().Id.ToString()
-        };
+            {
+                latitude = clickPosition.location.latitude,
+                longitude = clickPosition.location.longitude,
+                guid = Guid.NewGuid(),
+                value = Locations.Last().Id.ToString()
+            };
         StreamPoints.Add(streamPoint);
 
         // Set the Station guid to the StreamPoint guid
@@ -253,7 +262,7 @@
             };
 
         // Upload the StreamPoints to the map
-        realTimeMap.Geometric.Points.upload(StreamPoints, true);
+        realTimeMap.Geometric.Points.upload(StreamPoints, false);
 
     }
 
@@ -266,7 +275,7 @@
             return;
         }
         realTimeMap!.Geometric.Points.delete(pointToRemove.guid.ToString());
-        StreamPoints.Remove(pointToRemove);        
+        StreamPoints.Remove(pointToRemove);
         Locations.Remove(stationToRemove);
 
         // Update the Ids of the Stations and StreamPoints
@@ -275,6 +284,31 @@
             Locations[i].Id = i + 1;
             StreamPoints[i].value = i + 1;
             realTimeMap!.Geometric.Points.update(StreamPoints[i]);
+        }
+    }
+
+    private void MovePointOnMouseDown(RealTimeMap.ClicksMapArgs clickPosition)
+    {
+        Double clickedLatitude = Math.Round(clickPosition.location.latitude, 3);
+        Double clickedLongitude = Math.Round(clickPosition.location.longitude, 3);
+        pointToMove = StreamPoints.Find(sp => Math.Round(sp.longitude, 3) == clickedLongitude && Math.Round(sp.latitude, 3) == clickedLatitude);
+        if (pointToMove != null)
+        {
+            Debug.Print("Point to move: " + pointToMove!.latitude + " " + pointToMove!.longitude + " " + pointToMove!.value);
+        }
+    }
+
+    private void MovePointOnMouseUp(RealTimeMap.ClicksMapArgs clickPosition)
+    {
+        if (pointToMove != null)
+        {
+            var point = new RealTimeMap.StreamPoint()
+                {
+                    latitude = clickPosition.location.latitude,
+                    longitude = clickPosition.location.longitude,
+                    guid = pointToMove.guid
+                };
+            realTimeMap!.Geometric.Points.moveTo(point);
         }
     }
 
