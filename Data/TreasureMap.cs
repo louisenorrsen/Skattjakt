@@ -5,7 +5,7 @@
         // Add more properties here when needed
         public string Name { get; set; }
         public int Id { get; set; }
-        public List<Station> Stations { get; set; }
+        public List<Station> Stations { get; set; } = [];
 
         public TreasureMap(string name)
         {
