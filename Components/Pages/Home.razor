@@ -5,14 +5,18 @@
 <form class="form-content">
     <h1>Ange kartnamn</h1>
 
-    <input class="map-name-input" type="text" @bind="MapName" />
-    <button type="button" class="map-name-button" @onclick="CreateMap">Skapa</button>
+    <input class="map-name-input" type="text" @bind="MapName" @oninput="UpdateButtonState" />
+    <button type="button" class="map-name-button" disabled="@IsDisabled" @onclick="CreateMap">Skapa</button>
 
 </form>
 
 @code {
-    private string MapName { get; set; } = "test";
-
+    private string MapName { get; set; }
+    private bool IsDisabled;
+    protected override void OnInitialized()
+    {
+        IsDisabled = string.IsNullOrEmpty(MapName);
+    }
     private void CreateMap()
     {
         if (!string.IsNullOrEmpty(MapName))
@@ -24,5 +28,16 @@
             // TODO alert user instead of developer
             System.Diagnostics.Debug.Print("MapName är tomt eller null");
         }
+    }
+    private void UpdateButtonState(ChangeEventArgs e)
+    {
+        // Check if the input value is empty
+        if (!string.IsNullOrEmpty(e.Value!.ToString()))
+        {
+            IsDisabled = string.IsNullOrWhiteSpace(e.Value.ToString());
+            return;
+        }
+        IsDisabled = true;
+        return;
     }
 }
