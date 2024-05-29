@@ -3,7 +3,11 @@
 <div class="station-row">
     <button class="delete-station-button" type="button" @onclick="DeleteStation">x</button>
     <div class="station-id">@(Index + 1)</div>
-    <input class="station-name-input" type="text" @bind="Station.Name" />
+    @if (Station != null)
+    {
+        <input class="station-name-input" type="text" @bind="Station.Name" />
+    }
+
     <button class="settings-button" type="button" @onclick="ToggleSettings">+</button>
 
     @if (Index > 0)
@@ -27,12 +31,12 @@
                     }
                     else
                     {
-                        <p class="settings-title" @onclick="ToggleEdit">@Station.Name</p>
+                        <p class="settings-title" @onclick="ToggleEdit">@Station?.Name</p>
                         <button class="edit-toggle-button" @onclick="ToggleEdit"><img class="edit-toggle-image" src="/Assets/pencil.svg" alt="edit" /></button>
                     }
                 </div>
-                <p>Latitude: @Station.Location.Latitude</p>
-                <p>Longitude: @Station.Location.Longitude</p>
+                <p>Latitude: @Station?.Location.Latitude</p>
+                <p>Longitude: @Station?.Location.Longitude</p>
                 <p>Ange stationens uppdrag</p>
                 <textarea class="station-assignment-textarea" @bind="Station.Assignment"></textarea>
                 <button class="confirm-settings-button" @onclick="ToggleSettings">Spara inställningar</button>
@@ -44,7 +48,7 @@
 
 @code {
     [Parameter]
-    public Station Station { get; set; }
+    public Station? Station { get; set; }
 
     [Parameter]
     public int Index { get; set; }
@@ -60,7 +64,7 @@
 
     // Prepare for deleting a station, pass the method from the parent component to this component
     [Parameter]
-    public EventCallback<int> OnDelete { get; set; }
+    public EventCallback<Guid> OnDelete { get; set; }
 
     // Properties for toggling settings and editing
     private bool IsSettingsOpen { get; set; } = false;
@@ -79,7 +83,10 @@
 
     private async Task DeleteStation()
     {
-        await OnDelete.InvokeAsync(Index);
+        if (Station != null)
+        {
+            await OnDelete.InvokeAsync(Station.PointOnMapGuid);
+        }
     }
 
     /// <summary>
