@@ -10,14 +10,13 @@
 
     <input class="map-name-input" type="text" @bind="MapName" @oninput="UpdateButtonState" />
     <button type="button" class="map-name-button" disabled="@IsDisabled" @onclick="CreateMap">Skapa</button>
+    <button type="button" class="map-name-button" disabled="@IsDisabled" @onclick="GetMap">Ladda</button>
 
 </form>
 
 @code {
     private string MapName { get; set; } = "test";
-
-
-        private bool IsDisabled;
+    private bool IsDisabled;
     protected override void OnInitialized()
     {
         IsDisabled = string.IsNullOrEmpty(MapName);
@@ -29,6 +28,18 @@
         if (!string.IsNullOrEmpty(MapName))
         {
             NavManager.NavigateTo($"/Skapa/{MapName}");
+        }
+        else
+        {
+            // TODO alert user instead of developer
+            System.Diagnostics.Debug.Print("MapName är tomt eller null");
+        }
+    }
+    private void GetMap()
+    {
+        if (!string.IsNullOrEmpty(MapName))
+        {
+            NavManager.NavigateTo($"/Jakt/{MapName}");
         }
         else
         {
