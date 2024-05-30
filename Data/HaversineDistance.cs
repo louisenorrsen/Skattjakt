@@ -3,21 +3,6 @@ namespace Skattjakt.Data
 {
     public class HaversineDistance
     {
-        public class GeoPoint
-        {
-            public double Longitude;
-            public double Latitude;
-            public GeoPoint(double lon, double lat)
-            {
-                Longitude = lon;
-                Latitude = lat;
-            }
-            public string GetFormatted()
-            {
-                // Use the invariant culture for consistent formatting
-                return $"{Longitude.ToString("F6", System.Globalization.CultureInfo.InvariantCulture)},{Latitude.ToString("F6", System.Globalization.CultureInfo.InvariantCulture)}";
-            }
-        }
         /// <summary>
         /// Calculates the Haversine distance between two geographical points.
         /// </summary>
