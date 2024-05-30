@@ -6,17 +6,19 @@
 <PageTitle>Skapa skattjakt</PageTitle>
 
 <form class="form-content">
-    <h1>Ange kartnamn</h1>
-
-    <input class="map-name-input" type="text" @bind="MapName" @oninput="UpdateButtonState" />
+    <label for="MapNameInput"><h1>Ange kartnamn</h1></label>
+    <p class="alert-box">@AlertText</p>
+    <input id="MapNameInput" class="map-name-input" type="text" @bind="MapName" @oninput="UpdateButtonState" />
     <button type="button" class="map-name-button" disabled="@IsDisabled" @onclick="CreateMap">Skapa</button>
     <button type="button" class="map-name-button" disabled="@IsDisabled" @onclick="GetMap">Ladda</button>
 
 </form>
 
 @code {
-    private string MapName { get; set; } = "test";
+    private string? MapName { get; set; }
     private bool IsDisabled;
+    private bool IsValidName;
+    private string? AlertText;
     protected override void OnInitialized()
     {
         IsDisabled = string.IsNullOrEmpty(MapName);
@@ -25,9 +27,16 @@
     }
     private void CreateMap()
     {
-        if (!string.IsNullOrEmpty(MapName))
+        IsValidName = treasureMapService.Maps.All(map => map.Name != MapName);
+        if (!string.IsNullOrEmpty(MapName) && IsValidName)
         {
+            AlertText = "";
             NavManager.NavigateTo($"/Skapa/{MapName}");
+        }
+        else if (!IsValidName)
+        {
+            AlertText = "Det finns redan en karta med det angivna namnet!";
+            System.Diagnostics.Debug.Print($"{MapName} finns redan");
         }
         else
         {
@@ -37,9 +46,16 @@
     }
     private void GetMap()
     {
-        if (!string.IsNullOrEmpty(MapName))
+        IsValidName = treasureMapService.Maps.Any(map => map.Name == MapName);
+        if (!string.IsNullOrEmpty(MapName) && IsValidName)
         {
+            AlertText = "";
             NavManager.NavigateTo($"/Jakt/{MapName}");
+        }
+        else if (!IsValidName)
+        {
+            AlertText = "Det finns ingen karta med det angivna namnet!";
+            System.Diagnostics.Debug.Print($"{MapName} finns inte");
         }
         else
         {
