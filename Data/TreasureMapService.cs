@@ -21,13 +21,13 @@ namespace Skattjakt.Data
             return Maps;
         }
 
-        // Get a specific treasure map by its id
-        public TreasureMap GetMapById(int id)
+        // Get a specific treasure map by its name
+        public TreasureMap GetMapByName(string name)
         {
-            TreasureMap? map = Maps.FirstOrDefault(map => map.Id == id);
+            TreasureMap? map = Maps.FirstOrDefault(map => map.Name == name);
             if (map == null)
             {
-                throw new InvalidOperationException($"TreasureMap with Id {id} not found.");
+                throw new InvalidOperationException($"TreasureMap with Name {name} not found.");
             }
             else return map;
         }

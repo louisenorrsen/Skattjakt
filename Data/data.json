@@ -1,1 +1,104 @@
-[{"Name":"Min Karta","Id":1,"Stations":[{"Id":1,"Name":"Start","Location":{"Latitude":57.162387740318074,"Longitude":16.454225778579715},"PointOnMapGuid":"00000000-0000-0000-0000-000000000000","Assignment":"Detta är starten"},{"Id":2,"Name":"Mitten","Location":{"Latitude":57.16209116679333,"Longitude":16.45314753055573},"PointOnMapGuid":"00000000-0000-0000-0000-000000000000","Assignment":"Detta är mitten"},{"Id":3,"Name":"Mål","Location":{"Latitude":57.16205916852684,"Longitude":16.45413458347321},"PointOnMapGuid":"00000000-0000-0000-0000-000000000000","Assignment":"Detta är målet"}]},{"Name":"Motionsslingan Påskallavik","Id":2,"Stations":[{"Id":1,"Name":"Utegymmet","Location":{"Latitude":57.16152669330902,"Longitude":16.458281278610233},"PointOnMapGuid":"00000000-0000-0000-0000-000000000000","Assignment":null},{"Id":2,"Name":"Vildsvinsstigen","Location":{"Latitude":57.15883288298971,"Longitude":16.454815864562992},"PointOnMapGuid":"00000000-0000-0000-0000-000000000000","Assignment":null},{"Id":3,"Name":"Kojjan","Location":{"Latitude":57.15612723883773,"Longitude":16.45739078521729},"PointOnMapGuid":"00000000-0000-0000-0000-000000000000","Assignment":null},{"Id":4,"Name":"Genvägen","Location":{"Latitude":57.158152126645234,"Longitude":16.458517313003544},"PointOnMapGuid":"00000000-0000-0000-0000-000000000000","Assignment":null},{"Id":5,"Name":"Utgången till skolan","Location":{"Latitude":57.15934462386624,"Longitude":16.45910739898682},"PointOnMapGuid":"00000000-0000-0000-0000-000000000000","Assignment":null}]},{"Name":"test","Id":3,"Stations":[{"Id":1,"Name":"58,58875704042858, 16,178569793701175","Location":{"Latitude":58.58875704042858,"Longitude":16.178569793701175},"PointOnMapGuid":"ed1afd2f-bcb1-47f6-948a-0ebc40f8ad4b","Assignment":null},{"Id":2,"Name":"58,58850832874994, 16,17966413497925","Location":{"Latitude":58.58850832874994,"Longitude":16.17966413497925},"PointOnMapGuid":"0d8569e6-a8b0-49c3-a44d-10a4d2286f79","Assignment":null}]},{"Name":"test","Id":4,"Stations":[{"Id":1,"Name":"58,588902422344944, 16,178805828094486","Location":{"Latitude":58.588902422344944,"Longitude":16.178805828094486},"PointOnMapGuid":"08989bff-3523-499c-b7af-5c8c4fba2431","Assignment":null},{"Id":2,"Name":"58,58869844479351, 16,183279752731327","Location":{"Latitude":58.58869844479351,"Longitude":16.183279752731327},"PointOnMapGuid":"0a2326ac-c453-4758-a1c7-18562aad35cd","Assignment":null}]},{"Name":"test","Id":5,"Stations":[{"Id":1,"Name":"58,58896392989693, 16,17849469184876","Location":{"Latitude":58.58896392989693,"Longitude":16.17849469184876},"PointOnMapGuid":"19103efe-40c2-4606-9bbf-31a42ff6f8c3","Assignment":null},{"Id":2,"Name":"58,58873199457631, 16,17744863033295","Location":{"Latitude":58.58873199457631,"Longitude":16.17744863033295},"PointOnMapGuid":"9d52c03f-573d-49b6-a699-81a89f5face8","Assignment":null}]},{"Name":"test","Id":6,"Stations":[{"Id":1,"Name":"58,58901425417722, 16,179020404815677","Location":{"Latitude":58.58901425417722,"Longitude":16.179020404815677},"PointOnMapGuid":"d7b8b63c-915c-49ee-9dce-90f85b4abd6a","Assignment":null},{"Id":2,"Name":"58,588653711699706, 16,178290843963627","Location":{"Latitude":58.588653711699706,"Longitude":16.178290843963627},"PointOnMapGuid":"20018d03-6f1a-4352-aba8-4a8d8b3e1b79","Assignment":null}]},{"Name":"test","Id":7,"Stations":[{"Id":1,"Name":"58,58899747942518, 16,17995381355286","Location":{"Latitude":58.58899747942518,"Longitude":16.17995381355286},"PointOnMapGuid":"b01ce5bc-bcb7-45b5-bd46-b8852f52256a","Assignment":null},{"Id":2,"Name":"58,588961250564516, 16,180651187896732","Location":{"Latitude":58.588961250564516,"Longitude":16.180651187896732},"PointOnMapGuid":"b15e747c-1d39-4cef-9fee-17a555ecec6b","Assignment":null}]},{"Name":"test","Id":8,"Stations":[{"Id":1,"Name":"58,5890254373408, 16,179009675979618","Location":{"Latitude":58.5890254373408,"Longitude":16.179009675979618},"PointOnMapGuid":"9bb815f6-b9c5-499e-8e3c-72c33373344f","Assignment":null},{"Id":2,"Name":"58,58911222319982, 16,180340051651005","Location":{"Latitude":58.58911222319982,"Longitude":16.180340051651005},"PointOnMapGuid":"f29d5636-2125-4e80-979e-49d31dc6c8c8","Assignment":null},{"Id":3,"Name":"58,588611774372346, 16,1799430847168","Location":{"Latitude":58.588611774372346,"Longitude":16.1799430847168},"PointOnMapGuid":"d0307f44-961c-441f-accb-23ab90589bae","Assignment":null}]},{"Name":"test","Id":9,"Stations":[{"Id":1,"Name":"hej","Location":{"Latitude":59.29367617985132,"Longitude":17.939407825469974},"PointOnMapGuid":"70f611f7-4993-4a22-b185-dcaa88cc0cf5","Assignment":"hej på dig"},{"Id":2,"Name":"59.292121177909074, 17.955179214477543","Location":{"Latitude":59.292121177909074,"Longitude":17.955179214477543},"PointOnMapGuid":"36090acb-6902-4d75-9c5a-ddcf7386c45a","Assignment":null},{"Id":3,"Name":"59.289284068637, 17.94771194458008","Location":{"Latitude":59.289284068637,"Longitude":17.94771194458008},"PointOnMapGuid":"b974b769-cb00-47f2-8731-09d69c3acd1e","Assignment":null}]},{"Name":"test","Id":10,"Stations":[{"Id":1,"Name":"59.29329267922986, 17.938581705093387","Location":{"Latitude":59.29329267922986,"Longitude":17.938581705093387},"PointOnMapGuid":"5f54c475-1562-482a-aa7c-3ea2746b2063","Assignment":null},{"Id":2,"Name":"59.29360097811701, 17.941317558288578","Location":{"Latitude":59.29360097811701,"Longitude":17.941317558288578},"PointOnMapGuid":"a3c2a557-fcc2-4927-926c-1e79c1463889","Assignment":null}]},{"Name":"test","Id":11,"Stations":[{"Id":1,"Name":"59.29349538723969, 17.938345670700077","Location":{"Latitude":59.29349538723969,"Longitude":17.938345670700077},"PointOnMapGuid":"f4a411d0-4cbd-400c-888e-fb492f4078ec","Assignment":null},{"Id":2,"Name":"59.293055856877274, 17.93980479240418","Location":{"Latitude":59.293055856877274,"Longitude":17.93980479240418},"PointOnMapGuid":"7328d375-c832-46d7-a3dc-b051d4530199","Assignment":null},{"Id":3,"Name":"59.29286684295127, 17.940625548362735","Location":{"Latitude":59.29286684295127,"Longitude":17.940625548362735},"PointOnMapGuid":"51ed7172-0440-49f4-a6a7-7b9e6f97e535","Assignment":null}]}]
+[
+  {
+    "Name": "Min Karta",
+    "Id": 1,
+    "Settings": {
+      "TimeLimit": 15.0,
+      "Visible": true,
+      "ShowAll": true
+    },
+    "Stations": [
+      {
+        "Id": 1,
+        "Name": "Start",
+        "Location": {
+          "Latitude": 57.162393558135086,
+          "Longitude": 16.454193592071537
+        },
+        "PointOnMapGuid": "36d7aa0a-c1bc-4ce7-8de5-019a785bec2c",
+        "Assignment": "Starta här"
+      },
+      {
+        "Id": 2,
+        "Name": "Mitten",
+        "Location": {
+          "Latitude": 57.161549965113416,
+          "Longitude": 16.45834565162659
+        },
+        "PointOnMapGuid": "a7f0f6c3-5063-467d-ade4-80bb062bc0a5",
+        "Assignment": "Gör ett uppdrag här"
+      },
+      {
+        "Id": 3,
+        "Name": "Mål",
+        "Location": {
+          "Latitude": 57.15964162851418,
+          "Longitude": 16.462047100067142
+        },
+        "PointOnMapGuid": "ff8959ec-04a6-46cb-b4ad-60e6da5ee55a",
+        "Assignment": "Nu är du framme vid skolan"
+      }
+    ]
+  },
+  {
+    "Name": "Motionsslingan Påskallavik",
+    "Id": 2,
+    "Settings": {
+      "TimeLimit": 30.0,
+      "Visible": true,
+      "ShowAll": true
+    },
+    "Stations": [
+      {
+        "Id": 1,
+        "Name": "Utegymmet",
+        "Location": {
+          "Latitude": 57.16152101171392,
+          "Longitude": 16.458200812339786
+        },
+        "PointOnMapGuid": "893cb5ed-c173-42bc-9933-157bc80c8bc3",
+        "Assignment": "Gå balansgång"
+      },
+      {
+        "Id": 2,
+        "Name": "Backen",
+        "Location": {
+          "Latitude": 57.15741899041435,
+          "Longitude": 16.454687118530277
+        },
+        "PointOnMapGuid": "174e87dd-04b4-4065-a43a-e8529a851303",
+        "Assignment": "Spring uppför backen så fort du kan"
+      },
+      {
+        "Id": 3,
+        "Name": "Kojan",
+        "Location": {
+          "Latitude": 57.156930361228476,
+          "Longitude": 16.458029150962833
+        },
+        "PointOnMapGuid": "c05160c6-e883-4ab3-a087-4bc1757c8897",
+        "Assignment": "Kontrollera att kojan inte har blåst sönder"
+      },
+      {
+        "Id": 4,
+        "Name": "Genvägen",
+        "Location": {
+          "Latitude": 57.15817553694391,
+          "Longitude": 16.458501219749454
+        },
+        "PointOnMapGuid": "3220f684-9514-42bb-8b4b-aa8791ba9a9c",
+        "Assignment": "Ta genvägen till vänster"
+      },
+      {
+        "Id": 5,
+        "Name": "Utgången",
+        "Location": {
+          "Latitude": 57.15894938670929,
+          "Longitude": 16.459944248199466
+        },
+        "PointOnMapGuid": "363730d4-5a98-46d5-9f02-0e9f734b5410",
+        "Assignment": "Följ utgången från slingan och återvänd till skolan"
+      }
+    ]
+  }
+]
