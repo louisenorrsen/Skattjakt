@@ -1,7 +1,7 @@
 ﻿using static System.Math;
 namespace Skattjakt.Data
 {
-    public class HaversineDistance
+    public static class HaversineDistance
     {
         /// <summary>
         /// Calculates the Haversine distance between two geographical points.
