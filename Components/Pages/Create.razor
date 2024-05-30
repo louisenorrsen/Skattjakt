@@ -4,6 +4,7 @@
 @using BrowserInterop.Extensions
 @using BrowserInterop.Geolocation
 @using System.Diagnostics
+@using Microsoft.JSInterop
 @inject IJSRuntime jsR
 @inject NavigationManager NavManager
 @inject TreasureMapService treasureMapService
@@ -14,7 +15,7 @@
     <div class="btn-map-container">
         @if (parameters != null)
         {
-            <RealTimeMap @ref="realTimeMap" Parameters="@parameters" height="460px" width="620px" OnClickMap="AddPositonAndStreamPoint"></RealTimeMap>
+            <RealTimeMap @ref="realTimeMap" Parameters="@parameters" height="@mapHeight" width="@mapWidth" OnClickMap="AddPositonAndStreamPoint"></RealTimeMap>
         }
         <div class="btn-row">
             <button type="button" @onclick="GetGeoLocation" disabled="@getLocationBtnDisabled">Hitta Position</button>
@@ -52,6 +53,9 @@
 @code {
     [Parameter]
     public string? MapName { get; set; }
+
+    private string mapHeight = "460px";
+    private string mapWidth = "620px";
 
     private bool getLocationBtnDisabled = false;
     private bool gotoSetupBtnDisable = true;
@@ -93,6 +97,13 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         System.Diagnostics.Debug.Print("AFTER INITIALIZED ASYNC");
+        var screenWidth = await jsR.InvokeAsync<int>("getScreenWidth");
+
+        if (screenWidth <= 600)
+        {
+            mapHeight = "400px";
+            mapWidth = "350px";
+        }
         var window = await jsR.Window();
         var navigator = await window.Navigator();
         geolocationWrapper = navigator.Geolocation;

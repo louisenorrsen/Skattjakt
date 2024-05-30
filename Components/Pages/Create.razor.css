@@ -15,11 +15,6 @@
     flex-direction: column;
 }
 
-.fake-location-button {
-        margin-top: 1rem;
-
-}
-
 .btn-map-container {
     display: flex;
     flex-direction: column;
@@ -29,4 +24,23 @@
     display: flex;
     flex-direction: row;
     gap: 5px;
+}
+
+@media (max-width: 600px) {
+    RealTimeMap {
+        max-width: calc(100vw - 20px);
+    }
+    .btn-row {
+        justify-content: center;
+        margin-top: 5px;
+    }
+
+    .btn-row button {
+        margin: 0px;
+        width: 150px;
+    }
+
+    .create-stations {
+        flex-direction: column;
+    }
 }
