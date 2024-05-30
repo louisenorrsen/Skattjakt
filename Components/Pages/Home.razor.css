@@ -31,3 +31,9 @@ button:disabled {*/
     padding: 0px;
     height: 30px;
 }
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 36px;    
+    }
+}

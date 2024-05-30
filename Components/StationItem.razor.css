@@ -8,14 +8,14 @@
     border-bottom: 1px solid #013d01;
 }
 
-.station-row:first-of-type {
-    padding-top: 0px;
-}
+    .station-row:first-of-type {
+        padding-top: 0px;
+    }
 
-.station-row:last-of-type {
-    padding-bottom: 0px;
-    border-bottom: none;
-}
+    .station-row:last-of-type {
+        padding-bottom: 0px;
+        border-bottom: none;
+    }
 
 .station-id {
     width: 30px;
@@ -33,7 +33,7 @@
     background-color: #f0f0f0;
     font-size: 16px;
     padding-left: 5px;
-    border-radius:4px;
+    border-radius: 4px;
     padding-block: 0px;
 }
 
@@ -132,7 +132,7 @@
     margin-block-start: 0px;
 }
 
-.station-name-settings-input{
+.station-name-settings-input {
     font-size: 1.5rem;
     font-weight: 600;
     margin: 0px;
@@ -173,9 +173,9 @@
     margin-block-end: 5px;
 }
 
-.settings-paragraph:last-of-type{
-    margin-block-end: 15px;
-}
+    .settings-paragraph:last-of-type {
+        margin-block-end: 15px;
+    }
 
 .station-assignment-textarea {
     width: 70%;
@@ -188,4 +188,24 @@
     margin-bottom: 1rem;
 }
 
+@media (max-width:600px) {
+    .station-row {
+        margin: 0px;
+        justify-content:center;
+    }
+        .station-row:first-of-type {
+            padding-top: 5px;
+        }
 
+    .station-name-input {
+        width: 170px;
+    }
+
+    .station-table {
+        align-items: center;
+    }
+
+    .settings-content {
+        padding: 10px;
+    }
+}
