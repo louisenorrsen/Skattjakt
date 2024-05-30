@@ -9,6 +9,11 @@
             Latitude = latitude;
             Longitude = longitude;
         }
+        public void SetLocation(double latitude,double longitude)
+        {
+            Latitude = latitude;
+            Longitude = longitude;
+        }
     }
 
     public class Station
