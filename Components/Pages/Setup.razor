@@ -15,24 +15,28 @@
         <br />
         <div class="chk-group">
             <div class="form-group flex-container">
-                <label for="lastName">Synlighet:</label>
+                <label for="visible-btn">Synlighet:</label>
                 <InputCheckbox id="visible-btn" class="form-control" style="transform:scale(1.5);" @bind-Value="@settings.Visible" />
             </div>
             <br />
 
             <div class="form-group  flex-container">
-                <label for="email">Visa Alla:</label>
+                <label for="show-all-btn">Visa Alla:</label>
                 <InputCheckbox id="show-all-btn" class="form-control" style="transform: scale(1.5);" @bind-Value="@settings.ShowAll" />
             </div>
         </div>
         <br />
 
-        <button type="submit" class="btn btn-primary">Spara</button>
+        <button type="submit" class="btn btn-primary" @onclick="AssembleMapDataAndSave">Spara</button>
      </div>
 
 </EditForm>
 
 @code {
+    private void AssembleMapDataAndSave(MouseEventArgs e)
+    {
+        System.Diagnostics.Debug.Print(settings.TimeLimit.ToString());
+    }
 }
 
 @code {
@@ -40,14 +44,7 @@
     public string? MapName { get; set; }
     private TreasureMap? Map { get; set; }
 
-    private SettingsModel settings = new SettingsModel();
-
-    public class SettingsModel
-    {
-        public double? TimeLimit { get; set; }
-        public bool Visible { get; set; }
-        public bool ShowAll { get; set; }
-    }
+    private Settings settings = new Settings();
 
     protected override void OnInitialized()
     {
