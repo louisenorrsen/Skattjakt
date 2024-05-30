@@ -3,11 +3,12 @@
 @using static Skattjakt.Data.HaversineDistance
 @using BrowserInterop.Extensions
 @using BrowserInterop.Geolocation
+@using System.Timers
 @inject IJSRuntime jsR
 @inject TreasureMapService treasureMapService;
 @inject NavigationManager Navigation
 
-<h1 class="map-name-title">Skattjakt @Map.Name</h1>
+<h1 class="map-name-title">Skattjakt @MapName</h1>
 
 <div class="show-stations">
     @if (showMap)
@@ -18,7 +19,7 @@
     <div class="station-table">
         @for (int i = 0; i < Locations.Count; i++)
         {
-            <StationItem Station="@Locations[i]" Index=@i TotalStations="@Locations.Count"/>
+            <StationItem Station="@Locations[i]" Index=@i TotalStations="@Locations.Count" />
         }
     </div>
 </div>
@@ -26,66 +27,80 @@
 @if (clientPosition != null)
 {
     <div>
-        Current Position :
-        <ul>
-            <li>Goal: @clientPosition.Location.Coords.Latitude, @clientPosition.Location.Coords.Longitude</li>
-            <li> </li>
-            <li>Student: @clientCoordinate.Latitude, @clientCoordinate.Longitude</li>
-            <li> </li>
-            <li>Distance: @metersBetween</li>
-
-
-        </ul>
+        <div>
+            <p>Goal: @goalCoordinate.Latitude, @goalCoordinate.Longitude, @Map.Stations[nextStation].Name</p>
+            <br />
+            <p>Student: @clientCoordinate.Latitude, @clientCoordinate.Longitude</p>
+            <br />
+            <p>Distance: @metersBetween</p>
+        </div>
     </div>
 }
-
+<div>@userMessage</div>
+<button type="button" @onclick="GetNextStation">Hämta Nästa Station</button>
 @code {
-    bool showMap = true;
-    static double lat = 57.588987;
-    static double lng = 15.181287;
+    bool showMap = false;
 
+    int nrOfStations, nextStation;
     private WindowNavigatorGeolocation geolocationWrapper;
     private GeolocationResult clientPosition;
     private LocationCoordinate clientCoordinate;
     private LocationCoordinate goalCoordinate;
+
     private int metersBetween;
     // private List<GeolocationPosition> positionHistory = new List<GeolocationPosition>();
-
+    string userMessage;
     [Parameter]
     public string MapName { get; set; }
 
     public List<Station> Locations = new List<Station>();
 
     private TreasureMap Map { get; set; }
-
+    private Timer _timer;
+    /// <summary>
+    /// Reference to the RealTimeMap component
+    /// </summary>
+    RealTimeMap? realTimeMap;
+    RealTimeMap.LoadParameters? parameters = null;
     protected override void OnInitialized()
     {
-        Map = new TreasureMap(MapName);
-        treasureMapService.AddMap(Map);
+        _timer = new Timer(2000);
+        _timer.Elapsed += async (sender, e) => await OnTimedEvent(sender, e); // Handle async calls
+        _timer.AutoReset = true;
+        nextStation = -1;
+        Map = treasureMapService.GetMapByName(MapName);
         System.Diagnostics.Debug.Print("INITIALIZED");
     }
-    protected override async Task OnInitializedAsync()
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        System.Diagnostics.Debug.Print("INITIALIZED ASYNC");
         var window = await jsR.Window();
         var navigator = await window.Navigator();
         geolocationWrapper = navigator.Geolocation;
         await GetGeoLocation();
-        goalCoordinate = new LocationCoordinate(clientPosition.Location.Coords.Latitude,clientPosition.Location.Coords.Longitude);
-        clientCoordinate = new LocationCoordinate(clientPosition.Location.Coords.Latitude - 1.0,clientPosition.Location.Coords.Longitude-1.0);
-        metersBetween = CalculateHaversineDistance(clientCoordinate, goalCoordinate);
-        System.Diagnostics.Debug.Print("INITIALIZED ASYNC");
+        nrOfStations = Map.Stations.Count();
+        parameters = new RealTimeMap.LoadParameters()
+            {
+                location = new RealTimeMap.Location()
+                {
+                    latitude = clientPosition!.Location.Coords.Latitude,
+                    longitude = clientPosition.Location.Coords.Longitude
+                },
+                zoom_level = 10
+            };
     }
 
-    RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters()
-        {
-            location = new RealTimeMap.Location()
-            {
-                latitude = lat,
-                longitude = lng,
-            },
-            zoom_level = 10
-        };
 
+    private async Task OnTimedEvent(Object source, ElapsedEventArgs e)
+    {
+        await GetGeoLocation();
+        metersBetween = CalculateHaversineDistance(clientCoordinate, goalCoordinate);
+        if (metersBetween <= 2)
+        {
+            GetNextStation();
+        }
+    }
     public async Task GetGeoLocation()
     {
         clientPosition = (await geolocationWrapper.GetCurrentPosition(new PositionOptions()
@@ -95,5 +110,24 @@
                 TimeoutTimeSpan = TimeSpan.FromMinutes(1)
             }
         ));
+        clientCoordinate.SetLocation(clientPosition.Location.Coords.Latitude, clientPosition.Location.Coords.Longitude);
+    }
+    private void GetNextStation()
+    {
+        if (nextStation < Map.Stations.Count() - 1)
+        {
+            if(nextStation > -1)
+            {
+                userMessage = "Grattis. Du har klarat stationen " + Map.Stations[nextStation].Name;
+            }
+            nextStation++;
+            goalCoordinate = new LocationCoordinate(Map.Stations[nextStation].Location.Latitude, Map.Stations[nextStation].Location.Longitude);
+            metersBetween = CalculateHaversineDistance(clientCoordinate, goalCoordinate);
+            userMessage += "\nNästa station är " + Map.Stations[nextStation].Name;
+        }
+        else
+        {
+            userMessage = "Grattis. Du har klarat ALLA stationer.\nÅtergå till basstationen och hämta din belöning.";
+        }
     }
 }
