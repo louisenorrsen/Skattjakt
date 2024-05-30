@@ -1,5 +1,7 @@
 ﻿@page "/Vilkor/{mapName}"
 @using Skattjakt.Data
+@inject TreasureMapService treasureMapService
+@inject NavigationManager NavManager
 
 <h3>Inställningar</h3>
 <h1 class="map-name-title">@Map!.Name</h1>
@@ -33,13 +35,6 @@
 </EditForm>
 
 @code {
-    private void AssembleMapDataAndSave(MouseEventArgs e)
-    {
-        System.Diagnostics.Debug.Print(settings.TimeLimit.ToString());
-    }
-}
-
-@code {
     [Parameter]
     public string? MapName { get; set; }
     private TreasureMap? Map { get; set; }
@@ -48,8 +43,14 @@
 
     protected override void OnInitialized()
     {
-        Map = new TreasureMap(MapName!);
-        // treasureMapService.AddMap(Map);
+        Map = treasureMapService.GetMapByName(MapName);
         System.Diagnostics.Debug.Print("SETUP INITIALIZED");
+    }
+
+    private void AssembleMapDataAndSave(MouseEventArgs e)
+    {
+        Map!.Settings = settings;
+        treasureMapService.SaveMapsToFile();
+        NavManager.NavigateTo($"");
     }
 }

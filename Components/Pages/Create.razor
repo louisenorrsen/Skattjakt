@@ -8,7 +8,6 @@
 @inject IJSRuntime jsR
 @inject NavigationManager NavManager
 @inject TreasureMapService treasureMapService
-@inject NavigationManager Navigation
 
 <h1 class="map-name-title">@Map!.Name</h1>
 <div class="create-stations">
@@ -308,8 +307,6 @@
         // Add the map to the TreasureMapService
         treasureMapService.AddMap(Map);
 
-        // TODO: Move this to Setup.razor to run when the user is done with the map
-        treasureMapService.SaveMapsToFile();
         await Task.Delay(100);
         NavManager.NavigateTo($"/Vilkor/{Map!.Name}");
     }
