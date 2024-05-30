@@ -31,16 +31,7 @@ namespace Skattjakt.Data
             }
             else return map;
         }
-        // Get a specific treasure map by its id
-        public TreasureMap GetMapByName(string name)
-        {
-            TreasureMap? map = Maps.FirstOrDefault(map => map.Name == name);
-            if (map == null)
-            {
-                throw new InvalidOperationException($"TreasureMap with Id {name} not found.");
-            }
-            else return map;
-        }
+
 
         public int GetNextId()
         {
