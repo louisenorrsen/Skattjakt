@@ -1,5 +1,6 @@
 ﻿@page "/Jakt/{mapName}"
 @using Skattjakt.Data
+@using static Skattjakt.Data.HaversineDistance
 @using BrowserInterop.Extensions
 @using BrowserInterop.Geolocation
 @inject IJSRuntime jsR
@@ -22,28 +23,33 @@
     </div>
 </div>
 
-@if (currentPosition != null)
+@if (clientPosition != null)
 {
     <div>
         Current Position :
         <ul>
-            <li>Latitude: @currentPosition.Location.Coords.Latitude </li>
-            <li>Longitude: @currentPosition.Location.Coords.Longitude</li>
+            <li>Goal: @clientPosition.Location.Coords.Latitude, @clientPosition.Location.Coords.Longitude</li>
+            <li> </li>
+            <li>Student: @clientCoordinate.Latitude, @clientCoordinate.Longitude</li>
+            <li> </li>
+            <li>Distance: @metersBetween</li>
+
+
         </ul>
     </div>
 }
 
 @code {
-    bool showMap = false;
-    static string? latstring { get; set; }
-    static string? lngstring { get; set; }
-    static double lat = 44.1107672;
-    static double lng = 26.4501715;
+    bool showMap = true;
+    static double lat = 57.588987;
+    static double lng = 15.181287;
 
     private WindowNavigatorGeolocation geolocationWrapper;
-    private GeolocationResult currentPosition;
-    private List<GeolocationPosition> positionHistory = new List<GeolocationPosition>();
-    private IAsyncDisposable geopositionWatcher;
+    private GeolocationResult clientPosition;
+    private LocationCoordinate clientCoordinate;
+    private LocationCoordinate goalCoordinate;
+    private int metersBetween;
+    // private List<GeolocationPosition> positionHistory = new List<GeolocationPosition>();
 
     [Parameter]
     public string MapName { get; set; }
@@ -64,6 +70,9 @@
         var navigator = await window.Navigator();
         geolocationWrapper = navigator.Geolocation;
         await GetGeoLocation();
+        goalCoordinate = new LocationCoordinate(clientPosition.Location.Coords.Latitude,clientPosition.Location.Coords.Longitude);
+        clientCoordinate = new LocationCoordinate(clientPosition.Location.Coords.Latitude - 1.0,clientPosition.Location.Coords.Longitude-1.0);
+        metersBetween = CalculateHaversineDistance(clientCoordinate, goalCoordinate);
         System.Diagnostics.Debug.Print("INITIALIZED ASYNC");
     }
 
@@ -79,7 +88,7 @@
 
     public async Task GetGeoLocation()
     {
-        currentPosition = (await geolocationWrapper.GetCurrentPosition(new PositionOptions()
+        clientPosition = (await geolocationWrapper.GetCurrentPosition(new PositionOptions()
             {
                 EnableHighAccuracy = true,
                 MaximumAgeTimeSpan = TimeSpan.FromHours(1),
