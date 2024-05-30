@@ -30,7 +30,7 @@
     </div>
 </div>
 
-@if (currentPosition != null)
+@* @if (currentPosition != null)
 {
     <div>
         Current Position :
@@ -48,7 +48,7 @@
             <li>@item.Coords.Longitude</li>
         </ul>
     </div>
-}
+} *@
 @code {
     [Parameter]
     public string? MapName { get; set; }
@@ -220,7 +220,6 @@
         Station station = new Station()
             {
                 Location = new LocationCoordinate(clickPosition.location.latitude, clickPosition.location.longitude),
-                Name = $"{clickPosition.location.latitude}, {clickPosition.location.longitude}",
                 Id = Locations.Count + 1
             };
         Locations.Add(station);

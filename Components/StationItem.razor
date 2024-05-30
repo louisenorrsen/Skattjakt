@@ -1,24 +1,24 @@
 ﻿@using Skattjakt.Data
 
 <div class="station-row">
-    <button class="delete-station-button" type="button" @onclick="DeleteStation">x</button>
+    <div class="move-buttons-container">
+        @if (Index > 0)
+        {
+            <button class="move-up-or-down-button" @onclick="MoveUp"><img class="move-up-or-down-image" src="/Assets/caret-top.svg" alt="move up" /></button>
+        }
+        @if (Index < TotalStations - 1)
+        {
+            <button class="move-up-or-down-button" @onclick="MoveDown"><img class="move-up-or-down-image" src="/Assets/caret-bottom.svg" alt="move down" /></button>
+        }
+    </div>
     <div class="station-id">@(Index + 1)</div>
+    <button class="settings-button" type="button" @onclick="ToggleSettings"><img class="settings-button-image" src="/Assets/cog.svg" alt="settings" /></button>
     @if (Station != null)
     {
-        <input class="station-name-input" type="text" @bind="Station.Name" />
+        <input class="station-name-input" type="text" @bind="Station.Name" placeholder="Ange stationens namn" />
     }
 
-    <button class="settings-button" type="button" @onclick="ToggleSettings">+</button>
-
-    @if (Index > 0)
-    {
-        <button class="move-up-or-down-button" @onclick="MoveUp"><img class="move-up-or-down-image" src="/Assets/caret-top.svg" alt="caret top"></button>
-    }
-    @if (Index < TotalStations - 1)
-    {
-        <button class="move-up-or-down-button" @onclick="MoveDown"><img class="move-up-or-down-image" src="/Assets/caret-bottom.svg" alt="caret bottom"></button>
-    }
-
+    <button class="delete-station-button" type="button" @onclick="DeleteStation"><img class="delete-button-image" src="/Assets/trash.svg" alt="delete" /></button>
     @if (IsSettingsOpen)
     {
         <div class="settings-window">
@@ -27,19 +27,19 @@
                     @if (IsEditing)
                     {
                         <input class="station-name-settings-input" type="text" @bind="Station.Name" placeholder="@Station.Name" />
-                        <button class="edit-toggle-button" @onclick="ToggleEdit"><img class="edit-toggle-image" src="/Assets/check.svg" alt="edit" /></button>
+                        <button type="button" class="edit-toggle-button" @onclick="ToggleEdit"><img class="edit-toggle-image" src="/Assets/check.svg" alt="edit" /></button>
                     }
                     else
                     {
-                        <p class="settings-title" @onclick="ToggleEdit">@Station?.Name</p>
-                        <button class="edit-toggle-button" @onclick="ToggleEdit"><img class="edit-toggle-image" src="/Assets/pencil.svg" alt="edit" /></button>
+                        <p class="settings-title" @onclick="ToggleEdit">@(Station?.Name == null ? "Ange stationens namn" : $"{Station?.Name}")</p>
+                        <button type="button" class="edit-toggle-button" @onclick="ToggleEdit"><img class="edit-toggle-image" src="/Assets/pencil.svg" alt="edit" /></button>
                     }
                 </div>
-                <p>Latitude: @Station?.Location.Latitude</p>
-                <p>Longitude: @Station?.Location.Longitude</p>
-                <p>Ange stationens uppdrag</p>
-                <textarea class="station-assignment-textarea" @bind="Station.Assignment"></textarea>
-                <button class="confirm-settings-button" @onclick="ToggleSettings">Spara inställningar</button>
+                <p class="settings-paragraph">Latitude: @Station?.Location.Latitude</p>
+                <p class="settings-paragraph">Longitude: @Station?.Location.Longitude</p>
+                <label for="Assignment">Ange stationens uppdrag</label>
+                <textarea id="Assignment" cols="50" rows="5" class="station-assignment-textarea" @bind="Station.Assignment"></textarea>
+                <button type="button" class="confirm-settings-button" @onclick="ToggleSettings">Spara inställningar</button>
             </div>
         </div>
     }

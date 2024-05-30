@@ -3,47 +3,75 @@
     flex-direction: row;
     height: 35px;
     align-items: center;
-    margin-bottom: 10px;
+    padding: 5px 0px 5px 0px;
     margin-left: 1rem;
+    border-bottom: 1px solid #013d01;
+}
+
+.station-row:first-of-type {
+    padding-top: 0px;
+}
+
+.station-row:last-of-type {
+    padding-bottom: 0px;
+    border-bottom: none;
 }
 
 .station-id {
-    width: 35px;
-    height: 100%;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    background-color: #6ca96c;
 }
 
 .station-name-input {
-    width: 250px;
-    height: 98%;
+    width: 200px;
+    height: 30px;
     border: none;
     background-color: #f0f0f0;
     font-size: 16px;
     padding-left: 5px;
+    border-radius:4px;
+    padding-block: 0px;
 }
 
 .settings-button {
-    height: 100%;
-    width: 35px;
+    height: 30px;
+    width: 30px;
     border: none;
-    background-color: #6ca96c;
+    background-color: forestgreen;
     padding: 5px;
     font-size: 16px;
-    cursor: pointer;
+    margin: 0px 5px 0px 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.settings-button-image {
+    height: 18px;
+    width: 18px;
+}
+
+.move-buttons-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 46px;
 }
 
 .move-up-or-down-button {
-    height: 100%;
+    height: 30px;
     width: 20px;
     border: none;
     background: none;
-    padding: 5px;
     font-size: 16px;
-    cursor: pointer;
+    margin: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .move-up-or-down-image {
@@ -51,14 +79,22 @@
 }
 
 .delete-station-button {
-    height: 100%;
-    width: 35px;
+    height: 30px;
+    width: 30px;
     border: none;
-    background-color: #ffa4a3;
+    background-color: darkred;
     padding: 5px;
     font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
+    margin: 0px 0px 0px 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.delete-button-image {
+    height: 18px;
+    width: 18px;
+    margin-left: 2px;
 }
 
 .settings-window {
@@ -77,10 +113,10 @@
 
 .settings-content {
     background-color: #fefefe;
-    padding: 20px;
+    padding: 20px 60px;
     border: 1px solid #888;
-    width: 50%;
-    height: 50%;
+    width: max-content;
+    height: min-content;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -92,47 +128,53 @@
     margin-bottom: 1rem;
     color: #013d01;
     text-decoration: underline;
+    margin-block-end: 0px;
+    margin-block-start: 0px;
 }
 
 .station-name-settings-input{
     font-size: 1.5rem;
     font-weight: 600;
-    margin-bottom: 1rem;
-    margin-top: 24px;
+    margin: 0px;
     color: #013d01;
     border: none;
     border-bottom: 1px solid #013d01;
-}
-
-.confirm-settings-button {
-    margin-top: 1rem;
-    border: none;
-    background-color: #6ca96c;
-    padding: 10px 15px;
-    font-size: 16px;
-    cursor: pointer;
+    padding-block: 0px;
+    width: 200px;
 }
 
 .edit-toggle-button {
     border: none;
     width: 30px;
     background: none;
-    margin-left: 5px;
-    margin-top: 5px;
-    cursor: pointer;
+    margin: 0px;
 }
 
 .edit-toggle-image {
-    width: 100%;
-    height: 100%;
+    width: 20px;
+    height: 20px;
 }
 
 .settings-title-row {
     display: flex;
     justify-content: center;
+    align-items: center;
     flex-direction: row;
     width: 100%;
     margin-bottom: 1rem;
+}
+
+.settings-paragraph {
+    font-size: 1rem;
+    font-weight: 400;
+    margin: 0px;
+    color: #000;
+    margin-block-start: 0px;
+    margin-block-end: 5px;
+}
+
+.settings-paragraph:last-of-type{
+    margin-block-end: 15px;
 }
 
 .station-assignment-textarea {
