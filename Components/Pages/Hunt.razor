@@ -1,0 +1,90 @@
+﻿@page "/Jakt/{mapName}"
+@using Skattjakt.Data
+@using BrowserInterop.Extensions
+@using BrowserInterop.Geolocation
+@inject IJSRuntime jsR
+@inject TreasureMapService treasureMapService;
+@inject NavigationManager Navigation
+
+<h1 class="map-name-title">Skattjakt @Map.Name</h1>
+
+<div class="show-stations">
+    @if (showMap)
+    {
+        <RealTimeMap Parameters="@parameters" height="460px" width="620px"></RealTimeMap>
+    }
+
+    <div class="station-table">
+        @for (int i = 0; i < Locations.Count; i++)
+        {
+            <StationItem Station="@Locations[i]" Index=@i TotalStations="@Locations.Count"/>
+        }
+    </div>
+</div>
+
+@if (currentPosition != null)
+{
+    <div>
+        Current Position :
+        <ul>
+            <li>Latitude: @currentPosition.Location.Coords.Latitude </li>
+            <li>Longitude: @currentPosition.Location.Coords.Longitude</li>
+        </ul>
+    </div>
+}
+
+@code {
+    bool showMap = false;
+    static string? latstring { get; set; }
+    static string? lngstring { get; set; }
+    static double lat = 44.1107672;
+    static double lng = 26.4501715;
+
+    private WindowNavigatorGeolocation geolocationWrapper;
+    private GeolocationResult currentPosition;
+    private List<GeolocationPosition> positionHistory = new List<GeolocationPosition>();
+    private IAsyncDisposable geopositionWatcher;
+
+    [Parameter]
+    public string MapName { get; set; }
+
+    public List<Station> Locations = new List<Station>();
+
+    private TreasureMap Map { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Map = new TreasureMap(MapName);
+        treasureMapService.AddMap(Map);
+        System.Diagnostics.Debug.Print("INITIALIZED");
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        var window = await jsR.Window();
+        var navigator = await window.Navigator();
+        geolocationWrapper = navigator.Geolocation;
+        await GetGeoLocation();
+        System.Diagnostics.Debug.Print("INITIALIZED ASYNC");
+    }
+
+    RealTimeMap.LoadParameters parameters = new RealTimeMap.LoadParameters()
+        {
+            location = new RealTimeMap.Location()
+            {
+                latitude = lat,
+                longitude = lng,
+            },
+            zoom_level = 10
+        };
+
+    public async Task GetGeoLocation()
+    {
+        currentPosition = (await geolocationWrapper.GetCurrentPosition(new PositionOptions()
+            {
+                EnableHighAccuracy = true,
+                MaximumAgeTimeSpan = TimeSpan.FromHours(1),
+                TimeoutTimeSpan = TimeSpan.FromMinutes(1)
+            }
+        ));
+    }
+}
