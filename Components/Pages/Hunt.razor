@@ -145,7 +145,10 @@
         }
         finally
         {
-            clientCoordinate.SetLocation(clientPosition!.Location.Coords.Latitude, clientPosition.Location.Coords.Longitude);
+            if (clientPosition != null)
+            {
+                clientCoordinate.SetLocation(clientPosition!.Location.Coords.Latitude, clientPosition.Location.Coords.Longitude);
+            }
         }
     }
     private void GetNextStation()
