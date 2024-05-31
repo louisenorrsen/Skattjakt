@@ -1,0 +1,136 @@
+﻿@page "/Jakt/KartMode/{mapName}"
+@using Skattjakt.Data
+@using static Skattjakt.Data.HaversineDistance
+@using BrowserInterop.Extensions
+@using BrowserInterop.Geolocation
+@using System.Timers
+@inject IJSRuntime jsR
+@inject TreasureMapService treasureMapService;
+@inject NavigationManager Navigation
+
+<h1 class="map-name-title">Skattjakt - @Map.Name</h1>
+@if (parameters != null)
+{
+    <RealTimeMap @ref="realTimeMap" Parameters="@parameters" height="@mapHeight" width="@mapWidth"></RealTimeMap>
+}
+
+<button type="button" @onclick="GetGeoLocation" style="@(playerPositionSet ? "display: none;" : "display: block;")">Hämta min position</button>
+@if(playerPositionSet && !huntStarted)
+{
+    <p>Din position är hämtad</p>
+    <button type="button" @onclick="AddStreamPoints">Starta Skattjakten</button>
+}
+
+
+@code {
+    [Parameter]
+    public string MapName { get; set; }
+    /// <summary>
+    /// Reference to the RealTimeMap component
+    /// </summary>
+    RealTimeMap? realTimeMap;
+    RealTimeMap.LoadParameters? parameters = null;
+    string mapHeight = "460px";
+    string mapWidth = "620px";
+
+    private GeolocationResult? currentPosition;
+    private WindowNavigatorGeolocation? geolocationWrapper;
+    private bool huntStarted = false;
+    private bool playerPositionSet = false;
+
+    private TreasureMap Map => treasureMapService.GetMapByName(MapName);
+    private List<RealTimeMap.StreamPoint> StreamPoints = [];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var window = await jsR.Window();
+        var navigator = await window.Navigator();
+        geolocationWrapper = navigator.Geolocation;
+        await GetGeoLocation();
+        parameters = new RealTimeMap.LoadParameters()
+            {
+                location = new RealTimeMap.Location()
+                {
+                    latitude = currentPosition!.Location.Coords.Latitude,
+                    longitude = currentPosition.Location.Coords.Longitude,
+                },
+                zoom_level = 17
+            };
+    }
+
+    public async Task GetGeoLocation()
+    {
+        currentPosition = (await geolocationWrapper!.GetCurrentPosition(new PositionOptions()
+            {
+                EnableHighAccuracy = true,
+                MaximumAgeTimeSpan = TimeSpan.FromHours(1),
+                TimeoutTimeSpan = TimeSpan.FromMinutes(1)
+            }
+        ));
+        playerPositionSet = true;
+    }
+
+    private void AddStreamPoints()
+    {
+        foreach (Station station in Map.Stations)
+        {
+            StreamPoints.Add(new RealTimeMap.StreamPoint()
+                {
+                    latitude = station.Location.Latitude,
+                    longitude = station.Location.Longitude,
+                    guid = station.PointOnMapGuid,
+                    type = "point",
+                    value = station.Id.ToString()
+                });
+        }
+
+        // place players position on the map
+        StreamPoints.Add(new RealTimeMap.StreamPoint()
+        {
+            latitude = currentPosition!.Location.Coords.Latitude,
+            longitude = currentPosition.Location.Coords.Longitude,
+            guid = Guid.NewGuid(),
+            type = "player",
+            value = "Din position"
+        });
+
+        // Define the appearance of the points on the map
+        realTimeMap!.Geometric.Points.Appearance(point => point.type == "point").pattern = new RealTimeMap.PointSymbol()
+            {
+                color = "red",
+                fillColor = "red",
+                fillOpacity = 0.7,
+                radius = 10,
+            };
+
+        realTimeMap!.Geometric.Points.Appearance(point => point.type == "player").pattern = new RealTimeMap.PointSymbol()
+            {
+                color = "blue",
+                fillColor = "blue",
+                fillOpacity = 0.7,
+                radius = 10,
+            };
+
+        // Define the appearance of the points tooltip
+        realTimeMap.Geometric.Points.Appearance(point => point.type == "point").pattern = new RealTimeMap.PointTooltip()
+            {
+                // the value is set when the StreamPoint is created and added to the StreamPoint list
+                content = "${value}",
+                opacity = 0.8,
+                permanent = true
+            };
+
+        realTimeMap!.Geometric.Points.Appearance(point => point.type == "player").pattern = new RealTimeMap.PointTooltip()
+            {
+                content = "${value}",
+                opacity = 0.8,
+                permanent = false
+            };
+
+        // Upload the StreamPoints to the map
+        realTimeMap.Geometric.Points.upload(StreamPoints, false);
+        huntStarted = true;
+    }
+
+
+}
