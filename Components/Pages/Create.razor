@@ -30,25 +30,6 @@
     </div>
 </div>
 
-@* @if (currentPosition != null)
-{
-    <div>
-        Current Position :
-        <ul>
-            <li>Latitude: @currentPosition.Location.Coords.Latitude </li>
-            <li>Longitude: @currentPosition.Location.Coords.Longitude</li>
-        </ul>
-    </div>
-}
-@foreach (var item in positionHistory)
-{
-    <div>
-        <ul>
-            <li>@item.Coords.Latitude</li>
-            <li>@item.Coords.Longitude</li>
-        </ul>
-    </div>
-} *@
 @code {
     [Parameter]
     public string? MapName { get; set; }
