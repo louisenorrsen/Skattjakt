@@ -50,7 +50,14 @@
         if (!string.IsNullOrEmpty(MapName) && IsValidName)
         {
             AlertText = "";
-            NavManager.NavigateTo($"/Jakt/{MapName}");
+            if(treasureMapService.GetMapByName(MapName).Settings.Visible)
+            {
+                NavManager.NavigateTo($"/Jakt/KartMode/{MapName}");
+            }
+            else
+            {
+                NavManager.NavigateTo($"/Jakt/{MapName}");
+            }
         }
         else if (!IsValidName)
         {
