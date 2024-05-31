@@ -24,7 +24,7 @@
     </div>
 </div>
 
-@if (clientPosition != null)
+@if (clientPosition != null && nextStation > -1)
 {
     <div>
         <div>
@@ -32,7 +32,7 @@
             <br />
             <p>Student: @clientCoordinate.Latitude, @clientCoordinate.Longitude</p>
             <br />
-            <p>Distance: @metersBetween</p>
+            <p>Distance: @metersBetween @i</p>
         </div>
     </div>
 }
@@ -43,7 +43,7 @@
 
     int nrOfStations, nextStation;
     private WindowNavigatorGeolocation geolocationWrapper;
-    private GeolocationResult clientPosition;
+    private GeolocationResult? clientPosition;
     private LocationCoordinate clientCoordinate;
     private LocationCoordinate goalCoordinate;
 
@@ -80,43 +80,82 @@
         geolocationWrapper = navigator.Geolocation;
         await GetGeoLocation();
         nrOfStations = Map.Stations.Count();
-        parameters = new RealTimeMap.LoadParameters()
-            {
-                location = new RealTimeMap.Location()
+        if (clientPosition != null)
+        {
+            parameters = new RealTimeMap.LoadParameters()
                 {
-                    latitude = clientPosition!.Location.Coords.Latitude,
-                    longitude = clientPosition.Location.Coords.Longitude
-                },
-                zoom_level = 10
-            };
+                    location = new RealTimeMap.Location()
+                    {
+                        latitude = clientPosition!.Location.Coords.Latitude,
+                        longitude = clientPosition.Location.Coords.Longitude
+                    },
+                    zoom_level = 10
+                };
+        }
+        _timer.Start();
     }
 
-
-    private async Task OnTimedEvent(Object source, ElapsedEventArgs e)
+    int i = 0;
+    private async Task OnTimedEvent(Object source, ElapsedEventArgs evArgs)
     {
-        await GetGeoLocation();
-        metersBetween = CalculateHaversineDistance(clientCoordinate, goalCoordinate);
-        if (metersBetween <= 2)
+        try
         {
-            GetNextStation();
+            await GetGeoLocation();
+            await InvokeAsync(() =>
+            {
+                metersBetween = CalculateHaversineDistance(clientCoordinate, goalCoordinate);
+                StateHasChanged();
+            });
+            if (metersBetween <= 2)
+            {
+                GetNextStation();
+            }
+            System.Diagnostics.Debug.Print("TimedEvent " + i);
+            await InvokeAsync(() =>
+               {
+                   i++;
+                   StateHasChanged();
+               });
+
+        }
+        catch (Exception exeption)
+        {
+            System.Diagnostics.Debug.Print(exeption.Message);
+            throw;
         }
     }
+
     public async Task GetGeoLocation()
     {
-        clientPosition = (await geolocationWrapper.GetCurrentPosition(new PositionOptions()
+        try
+        {
+            clientPosition = (await geolocationWrapper.GetCurrentPosition(new PositionOptions()
+                {
+                    EnableHighAccuracy = true,
+                    MaximumAgeTimeSpan = TimeSpan.FromHours(1),
+                    TimeoutTimeSpan = TimeSpan.FromMinutes(1)
+                }
+            ));
+        }
+        catch (Exception exeption)
+        {
+            System.Diagnostics.Debug.Print(exeption.Message);
+            _timer.Stop();
+            // throw;
+        }
+        finally
+        {
+            if (clientPosition != null)
             {
-                EnableHighAccuracy = true,
-                MaximumAgeTimeSpan = TimeSpan.FromHours(1),
-                TimeoutTimeSpan = TimeSpan.FromMinutes(1)
+                clientCoordinate.SetLocation(clientPosition!.Location.Coords.Latitude, clientPosition.Location.Coords.Longitude);
             }
-        ));
-        clientCoordinate.SetLocation(clientPosition.Location.Coords.Latitude, clientPosition.Location.Coords.Longitude);
+        }
     }
     private void GetNextStation()
     {
         if (nextStation < Map.Stations.Count() - 1)
         {
-            if(nextStation > -1)
+            if (nextStation > -1)
             {
                 userMessage = "Grattis. Du har klarat stationen " + Map.Stations[nextStation].Name;
             }
