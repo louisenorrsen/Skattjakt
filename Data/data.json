@@ -1,5 +1,36 @@
 [
   {
+    "Name": "test",
+    "Id": 0,
+    "Settings": {
+      "TimeLimit": 5.0,
+      "Visible": true,
+      "ShowAll": false
+    },
+    "Stations": [
+      {
+        "Id": 1,
+        "Name": null,
+        "Location": {
+          "Latitude": 58.58216819128972,
+          "Longitude": 16.198852658271793
+        },
+        "PointOnMapGuid": "2a957dd1-2d81-4d97-8a05-370fbb789401",
+        "Assignment": null
+      },
+      {
+        "Id": 2,
+        "Name": null,
+        "Location": {
+          "Latitude": 58.58221852534398,
+          "Longitude": 16.19864344596863
+        },
+        "PointOnMapGuid": "ec037d5a-e84b-47ba-82a6-09e8eb45fba3",
+        "Assignment": null
+      }
+    ]
+  },
+  {
     "Name": "Min Karta",
     "Id": 1,
     "Settings": {
