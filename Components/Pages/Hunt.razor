@@ -11,9 +11,9 @@
 <h1 class="map-name-title">Skattjakt @MapName</h1>
 
 <div class="show-stations">
-    @if (showMap)
+    @if (timeLeft > -1)
     {
-        <RealTimeMap Parameters="@parameters" height="460px" width="620px"></RealTimeMap>
+        <h1>@timeLeft</h1>
     }
 
     <div class="station-table">
@@ -28,15 +28,19 @@
 {
     <div>
         <div>
-            <p>Goal: @goalCoordinate.Latitude, @goalCoordinate.Longitude, @Map.Stations[nextStation].Name</p>
-            <br />
-            <p>Student: @clientCoordinate.Latitude, @clientCoordinate.Longitude</p>
-            <br />
-            <p>Distance: @metersBetween @i</p>
+            @*
+        <p>Goal: @goalCoordinate.Latitude, @goalCoordinate.Longitude, @Map.Stations[nextStation].Name</p>
+        <br />
+        <p>Student: @clientCoordinate.Latitude, @clientCoordinate.Longitude</p>
+        <br />
+        *@
+            <p>@Map.Stations[nextStation].Name</p>
+            <p>@metersBetween @i</p>
+            <p>meter till nästa station.</p>
         </div>
     </div>
 }
-<div>@userMessage</div>
+@((MarkupString)userMessage)
 <button type="button" @onclick="GetNextStation">Hämta Nästa Station</button>
 @code {
     bool showMap = false;
@@ -57,6 +61,8 @@
 
     private TreasureMap Map { get; set; }
     private Timer _timer;
+    private Timer _countDownTimer;
+    private int timeLeft = -1; // Set the countdown time in seconds
     /// <summary>
     /// Reference to the RealTimeMap component
     /// </summary>
@@ -67,8 +73,18 @@
         _timer = new Timer(2000);
         _timer.Elapsed += async (sender, e) => await OnTimedEvent(sender, e); // Handle async calls
         _timer.AutoReset = true;
+
+        _countDownTimer = new Timer(1000); // Set the interval to 1 second
+        _countDownTimer.Elapsed += OnCountTimedEvent;
+        _countDownTimer.AutoReset = true;
+        _countDownTimer.Start();
+
         nextStation = -1;
         Map = treasureMapService.GetMapByName(MapName);
+        if (Map.Settings.TimeLimit > 0)
+        {
+            timeLeft = (int)Map.Settings.TimeLimit * 60;
+        }
         System.Diagnostics.Debug.Print("INITIALIZED");
     }
 
@@ -125,6 +141,26 @@
         }
     }
 
+    private void OnCountTimedEvent(Object source, ElapsedEventArgs e)
+    {
+        if (timeLeft > 0) { timeLeft--; }
+        else
+        {
+            _timer.Stop();
+        }
+
+        InvokeAsync(() =>
+        {
+            StateHasChanged(); // Notify Blazor that the state has changed
+        });
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+        _countDownTimer?.Dispose();
+    }
+
     public async Task GetGeoLocation()
     {
         try
@@ -162,13 +198,13 @@
             nextStation++;
             goalCoordinate = new LocationCoordinate(Map.Stations[nextStation].Location.Latitude, Map.Stations[nextStation].Location.Longitude);
             metersBetween = CalculateHaversineDistance(clientCoordinate, goalCoordinate);
-            userMessage += "\nNästa station är " + Map.Stations[nextStation].Name;
+            userMessage += "<br />Nästa station är " + Map.Stations[nextStation].Name;
         }
         else
         {
             goalCoordinate = new LocationCoordinate(Map.Stations[0].Location.Latitude, Map.Stations[0].Location.Longitude);
             metersBetween = CalculateHaversineDistance(clientCoordinate, goalCoordinate);
-            userMessage = "Grattis. Du har klarat ALLA stationer.\nÅtergå till basstationen och hämta din belöning.";
+            userMessage = "Grattis. Du har klarat ALLA stationer.<br />Återgå till basstationen och hämta din belöning.";
         }
     }
 }
