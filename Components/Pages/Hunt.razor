@@ -166,6 +166,8 @@
         }
         else
         {
+            goalCoordinate = new LocationCoordinate(Map.Stations[0].Location.Latitude, Map.Stations[0].Location.Longitude);
+            metersBetween = CalculateHaversineDistance(clientCoordinate, goalCoordinate);
             userMessage = "Grattis. Du har klarat ALLA stationer.\nÅtergå till basstationen och hämta din belöning.";
         }
     }
