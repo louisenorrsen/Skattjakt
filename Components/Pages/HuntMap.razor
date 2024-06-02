@@ -32,9 +32,9 @@
         CurrentStationIndex: @currentStationIndex<br />
         CurrentStation: @currentStation.Name<br />
         CurrentStationReached: @currentStationReached<br />
-        PlayerPosition: @playerPosition.latitude, @playerPosition.longitude<br />
-        CurrentStationPosition: @currentStation.Location.Latitude, @currentStation.Location.Longitude<br />
-    </div> *@
+        PlayerPosition: @Math.Round(playerPosition!.latitude, 4), @Math.Round(playerPosition!.longitude, 4)<br />
+        CurrentStationPosition: @Math.Round(currentStation!.Location.Latitude, 4), @Math.Round(currentStation!.Location.Longitude, 4)<br />
+    </div>
     <h2>@currentStation.Name</h2>
     @if (currentStationReached && currentStationIndex == Stations.Count - 1)
     {
@@ -176,7 +176,7 @@
             {
                 EnableHighAccuracy = true,
                 MaximumAgeTimeSpan = TimeSpan.Zero,
-                TimeoutTimeSpan = TimeSpan.FromSeconds(30)
+                TimeoutTimeSpan = TimeSpan.FromMinutes(5)
             }
         ));
 
@@ -197,8 +197,8 @@
 
 
             // Try different Math.Round to make sure the player is at the station
-            if (Math.Round(currentStation.Location.Latitude, 6) == Math.Round(playerPosition!.latitude, 6) &&
-                Math.Round(currentStation.Location.Longitude, 6) == Math.Round(playerPosition!.longitude, 6))
+            if (Math.Round(currentStation.Location.Latitude, 4) == Math.Round(playerPosition!.latitude, 4) &&
+                Math.Round(currentStation.Location.Longitude, 4) == Math.Round(playerPosition!.longitude, 4))
             {
                 currentStationReached = true;
                 StreamPoints.Find(point => point.guid == currentStation.PointOnMapGuid)!.type = "reachedpoint";

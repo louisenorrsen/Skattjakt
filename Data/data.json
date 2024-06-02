@@ -131,5 +131,56 @@
         "Assignment": "Följ utgången från slingan och återvänd till skolan"
       }
     ]
+  },
+  {
+    "Name": "Huset",
+    "Id": 5,
+    "Settings": {
+      "TimeLimit": 10.0,
+      "Visible": true,
+      "ShowAll": true
+    },
+    "Stations": [
+      {
+        "Id": 1,
+        "Name": "Första",
+        "Location": {
+          "Latitude": 57.16238483140923,
+          "Longitude": 16.45433306694031
+        },
+        "PointOnMapGuid": "1d6d545c-8058-43b5-afb8-0e4e00f74dae",
+        "Assignment": null
+      },
+      {
+        "Id": 2,
+        "Name": "Andra",
+        "Location": {
+          "Latitude": 57.16237610468133,
+          "Longitude": 16.454054117202762
+        },
+        "PointOnMapGuid": "4ecfc46d-2cf9-4047-8ad5-cb6d4cb8a3ff",
+        "Assignment": null
+      },
+      {
+        "Id": 3,
+        "Name": "Tredje",
+        "Location": {
+          "Latitude": 57.16247500747702,
+          "Longitude": 16.454059481620792
+        },
+        "PointOnMapGuid": "72ef6178-625f-4450-90bc-17b82a4b489a",
+        "Assignment": null
+      },
+      {
+        "Id": 4,
+        "Name": "Fjärde",
+        "Location": {
+          "Latitude": 57.16247500747702,
+          "Longitude": 16.454311609268192
+        },
+        "PointOnMapGuid": "f8b1475e-8c81-46f5-8ed5-650cefd60a06",
+        "Assignment": null
+      }
+    ]
   }
 ]
