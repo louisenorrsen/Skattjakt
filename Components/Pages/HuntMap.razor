@@ -9,7 +9,7 @@
 @inject TreasureMapService treasureMapService;
 @inject NavigationManager Navigation
 
-<h1 class="map-name-title">Skattjakt - @Map.Name</h1>
+<h1 class="map-name-title">Skattjakt - @Map!.Name</h1>
 @if (timeLeft > -1 && huntStarted)
 {
     <h2>Tid kvar: @FormatTime(timeLeft)</h2>
@@ -28,32 +28,39 @@
 
 @if (currentStation != null && huntStarted)
 {
+    @* <div>
+        CurrentStationIndex: @currentStationIndex<br />
+        CurrentStation: @currentStation.Name<br />
+        CurrentStationReached: @currentStationReached<br />
+        PlayerPosition: @playerPosition.latitude, @playerPosition.longitude<br />
+        CurrentStationPosition: @currentStation.Location.Latitude, @currentStation.Location.Longitude<br />
+    </div> *@
     <h2>@currentStation.Name</h2>
-    @if (currentStationReached)
-    {
-        <h3>Bra jobbat! Du är framme, här ska du:</h3>
-        <p>@currentStation.Assignment</p>
-        <button type="button" @onclick="ShowNextStation">Visa nästa station</button>
-    }
-    else if (currentStationIndex == Stations.Count - 1)
+    @if (currentStationReached && currentStationIndex == Stations.Count - 1)
     {
         <h3>Grattis! Du är framme vid sista stationen</h3>
         <p>@currentStation.Assignment</p>
         <button type="button" @onclick="NavigateToHomePage">Slutför skattjakten</button>
+    }
+    else if (currentStationReached)
+    {
+        <h3>Bra jobbat! Du är framme, här ska du:</h3>
+        <p>@currentStation.Assignment</p>
+        <button type="button" @onclick="ShowNextStation">Visa nästa station</button>
     }
     else
     {
         <p>Gå till stationen</p>
         <div class="demobox">
             <p>Knapp i demosyfte</p>
-            <button type="button" @onclick="MoveToNextStation">Förflytta till stationen</button>
+            <button type="button" @onclick="MovePlayerToNextStation">Förflytta till stationen</button>
         </div>
     }
 }
 
 @code {
     [Parameter]
-    public string MapName { get; set; }
+    public string? MapName { get; set; }
     /// <summary>
     /// Reference to the RealTimeMap component
     /// </summary>
@@ -66,30 +73,30 @@
     private WindowNavigatorGeolocation? geolocationWrapper;
     private bool huntStarted = false;
     private bool playerPositionSet = false;
-    private RealTimeMap.StreamPoint playerPosition;
+    private RealTimeMap.StreamPoint? playerPosition;
 
-    private TreasureMap Map => treasureMapService.GetMapByName(MapName);
+    private TreasureMap? Map => treasureMapService.GetMapByName(MapName!);
     private List<RealTimeMap.StreamPoint> StreamPoints = [];
-    private List<Station> Stations => Map.Stations;
+    private List<Station> Stations => Map!.Stations;
     private int currentStationIndex = 0;
     private Station currentStation => Stations[currentStationIndex];
     private int? timeLeft;
-    private Timer _timer;
-    private Timer _countDownTimer;
+    private Timer? _timer;
+    private Timer? _countDownTimer;
     private bool currentStationReached = false;
 
     protected override void OnInitialized()
     {
         _timer = new Timer(5000);
-        _timer.Elapsed += async (sender, e) => await OnTimedEvent(sender, e); // Handle async calls
+        _timer.Elapsed += async (sender, e) => await OnTimedEvent(sender!, e); // Handle async calls
         _timer.AutoReset = true;
 
         _countDownTimer = new Timer(1000); // Set the interval to 1 second
-        _countDownTimer.Elapsed += OnCountTimedEvent;
+        _countDownTimer.Elapsed += OnCountTimedEvent!;
         _countDownTimer.AutoReset = true;
         _countDownTimer.Start();
 
-        if (Map.Settings.TimeLimit > 0)
+        if (Map!.Settings.TimeLimit > 0)
         {
             timeLeft = (int)Map.Settings.TimeLimit * 60;
         }
@@ -134,7 +141,7 @@
         if (timeLeft > 0) { timeLeft--; }
         else
         {
-            _timer.Stop();
+            _timer!.Stop();
         }
 
         InvokeAsync(() =>
@@ -258,24 +265,20 @@
         // Upload the StreamPoints to the map
         realTimeMap.Geometric.Points.upload(StreamPoints, true);
         huntStarted = true;
-        _timer.Start();
+        _timer!.Start();
     }
 
-    private void MoveToNextStation(MouseEventArgs e)
+    private void MovePlayerToNextStation(MouseEventArgs e)
     {
-        RealTimeMap.StreamPoint previousStationPoint = StreamPoints.Find(point => point.guid == currentStation.PointOnMapGuid);
-        previousStationPoint.value = new Attributes() { id = currentStation.Id, name = currentStation.Name };
-        var point = new RealTimeMap.StreamPoint()
+        playerPosition = new RealTimeMap.StreamPoint()
             {
                 latitude = currentStation.Location.Latitude,
                 longitude = currentStation.Location.Longitude,
-                guid = playerPosition.guid,
+                guid = playerPosition!.guid,
                 type = playerPosition.type,
                 value = playerPosition.value
             };
-        realTimeMap.Geometric.Points.moveTo(point);
-        currentStationReached = true;
-        StreamPoints.Find(point => point.guid == currentStation.PointOnMapGuid).type = "reachedpoint";
+        realTimeMap!.Geometric.Points.moveTo(playerPosition);
     }
 
     private void ShowNextStation(MouseEventArgs e)
@@ -294,12 +297,7 @@
                     value = new Attributes() { id = currentStation.Id, name = currentStation.Name }
                 };
             StreamPoints.Add(nextStation);
-            // if (currentStationIndex > 1)
-            // {
-            //     StreamPoints.Remove(StreamPoints.Find(point => point.guid == Stations[currentStationIndex - 2].PointOnMapGuid));
-            //     realTimeMap.Geometric.Points.delete(Stations[currentStationIndex - 2].PointOnMapGuid.ToString());
-            // }
-            realTimeMap.Geometric.Points.upload(StreamPoints, true);
+            realTimeMap!.Geometric.Points.upload(StreamPoints, true);
         }
     }
     private void NavigateToHomePage(MouseEventArgs e)
