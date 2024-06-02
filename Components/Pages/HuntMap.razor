@@ -36,6 +36,10 @@
     else
     {
         <p>Gå till stationen</p>
+        <div class="demobox">
+            <p>Knapp i demosyfte</p>
+            <button type="button" @onclick="MoveToNextStation">Förflytta till stationen</button>
+        </div>
     }
 }
 
@@ -242,5 +246,49 @@
         _timer.Start();
     }
 
+    private void MoveToNextStation(MouseEventArgs e)
+    {
+        RealTimeMap.StreamPoint previousStationPoint = StreamPoints.Find(point => point.guid == currentStation.PointOnMapGuid);
+        previousStationPoint.value = new Attributes() { id = currentStation.Id, name = currentStation.Name };
+        var point = new RealTimeMap.StreamPoint()
+            {
+                latitude = currentStation.Location.Latitude,
+                longitude = currentStation.Location.Longitude,
+                guid = playerPosition.guid,
+                type = playerPosition.type,
+                value = playerPosition.value
+            };
+        realTimeMap.Geometric.Points.moveTo(point);
+        currentStationReached = true;
+        StreamPoints.Find(point => point.guid == currentStation.PointOnMapGuid).type = "reachedpoint";
+    }
 
+    private void ShowNextStation(MouseEventArgs e)
+    {
+        if (currentStationIndex != Stations.Count - 1)
+        {
+            currentStationIndex++;
+            currentStationReached = false;
+
+            RealTimeMap.StreamPoint nextStation = new RealTimeMap.StreamPoint()
+                {
+                    latitude = currentStation.Location.Latitude,
+                    longitude = currentStation.Location.Longitude,
+                    guid = currentStation.PointOnMapGuid,
+                    type = "point",
+                    value = new Attributes() { id = currentStation.Id, name = currentStation.Name }
+                };
+            StreamPoints.Add(nextStation);
+            // if (currentStationIndex > 1)
+            // {
+            //     StreamPoints.Remove(StreamPoints.Find(point => point.guid == Stations[currentStationIndex - 2].PointOnMapGuid));
+            //     realTimeMap.Geometric.Points.delete(Stations[currentStationIndex - 2].PointOnMapGuid.ToString());
+            // }
+            realTimeMap.Geometric.Points.upload(StreamPoints, true);
+        }
+    }
+    private void NavigateToHomePage(MouseEventArgs e)
+    {
+        Navigation.NavigateTo("/");
+    }
 }
