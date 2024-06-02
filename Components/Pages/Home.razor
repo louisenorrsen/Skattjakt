@@ -27,7 +27,7 @@
     }
     private void CreateMap()
     {
-        IsValidName = treasureMapService.Maps.All(map => map.Name != MapName);
+        IsValidName = treasureMapService.Maps.All(map => map.Name.ToLower() != MapName.ToLower());
         if (!string.IsNullOrEmpty(MapName) && IsValidName)
         {
             AlertText = "";
@@ -46,7 +46,7 @@
     }
     private void GetMap()
     {
-        IsValidName = treasureMapService.Maps.Any(map => map.Name == MapName);
+        IsValidName = treasureMapService.Maps.Any(map => map.Name.ToLower() == MapName.ToLower());
         if (!string.IsNullOrEmpty(MapName) && IsValidName)
         {
             AlertText = "";
