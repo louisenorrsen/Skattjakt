@@ -180,21 +180,30 @@
             }
         ));
 
-        // var latitude = currentPosition!.Location.Coords.Latitude;
-        // var longitude = currentPosition!.Location.Coords.Longitude;
+        var latitude = currentPosition!.Location.Coords.Latitude;
+        var longitude = currentPosition!.Location.Coords.Longitude;
 
-        // if (playerPositionSet && huntStarted)
-        // {
-        //     var point = new RealTimeMap.StreamPoint()
-        //         {
-        //             latitude = latitude,
-        //             longitude = longitude,
-        //             guid = playerPosition.guid,
-        //             type = playerPosition.type,
-        //             value = playerPosition.value
-        //         };
-        //     realTimeMap.Geometric.Points.moveTo(point);
-        // }
+        if (playerPositionSet && huntStarted)
+        {
+            playerPosition = new RealTimeMap.StreamPoint()
+                {
+                    latitude = latitude,
+                    longitude = longitude,
+                    guid = playerPosition!.guid,
+                    type = playerPosition.type,
+                    value = playerPosition.value
+                };
+            await realTimeMap!.Geometric.Points.moveTo(playerPosition);
+
+
+            // Try different Math.Round to make sure the player is at the station
+            if (Math.Round(currentStation.Location.Latitude, 6) == Math.Round(playerPosition!.latitude, 6) &&
+                Math.Round(currentStation.Location.Longitude, 6) == Math.Round(playerPosition!.longitude, 6))
+            {
+                currentStationReached = true;
+                StreamPoints.Find(point => point.guid == currentStation.PointOnMapGuid)!.type = "reachedpoint";
+            }
+        }
         playerPositionSet = true;
     }
 
