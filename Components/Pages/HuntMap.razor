@@ -23,7 +23,7 @@
 @if (playerPositionSet && !huntStarted)
 {
     <p>Din position är hämtad</p>
-    <button type="button" @onclick="AddStreamPoints">Starta Skattjakten</button>
+    <button type="button" @onclick="AddStreamPoint">Starta Skattjakten</button>
 }
 
 @if (currentStation != null && huntStarted)
@@ -181,17 +181,15 @@
         playerPositionSet = true;
     }
 
-    private void AddStreamPoints()
-    {
-        foreach (Station station in Map.Stations)
+    private void AddStreamPoint()
         {
             StreamPoints.Add(new RealTimeMap.StreamPoint()
                 {
-                    latitude = station.Location.Latitude,
-                    longitude = station.Location.Longitude,
-                    guid = station.PointOnMapGuid,
+                latitude = currentStation.Location.Latitude,
+                longitude = currentStation.Location.Longitude,
+                guid = currentStation.PointOnMapGuid,
                     type = "point",
-                    value = new Attributes() { id = station.Id, name = station.Name }
+                value = new Attributes() { id = currentStation.Id, name = currentStation.Name }
                 });
         }
 
@@ -221,6 +219,14 @@
                 color = "blue",
                 fillColor = "blue",
                 fillOpacity = 0.7,
+                radius = 5
+            };
+
+        realTimeMap.Geometric.Points.Appearance(point => point.type == "reachedpoint").pattern = new RealTimeMap.PointSymbol()
+            {
+                color = "green",
+                fillColor = "green",
+                fillOpacity = 0.7,
                 radius = 10,
             };
 
@@ -230,18 +236,18 @@
                 // the value is set when the StreamPoint is created and added to the StreamPoint list
                 content = "<b>Id: </b>${value.id}<br><b>Namn: </b>${value.name}",
                 opacity = 0.8,
-                permanent = true
+                permanent = false
             };
 
         realTimeMap!.Geometric.Points.AppearanceOnType(point => point.type == "player").pattern = new RealTimeMap.PointTooltip()
             {
                 content = "${value}",
                 opacity = 0.8,
-                permanent = false
+                permanent = false,
             };
 
         // Upload the StreamPoints to the map
-        realTimeMap.Geometric.Points.upload(StreamPoints, false);
+        realTimeMap.Geometric.Points.upload(StreamPoints, true);
         huntStarted = true;
         _timer.Start();
     }
