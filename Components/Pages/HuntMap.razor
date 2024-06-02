@@ -4,23 +4,40 @@
 @using BrowserInterop.Extensions
 @using BrowserInterop.Geolocation
 @using System.Timers
+@using System.Diagnostics
 @inject IJSRuntime jsR
 @inject TreasureMapService treasureMapService;
 @inject NavigationManager Navigation
 
 <h1 class="map-name-title">Skattjakt - @Map.Name</h1>
+@if (timeLeft > -1 && huntStarted)
+{
+    <h2>Tid kvar: @FormatTime(timeLeft)</h2>
+}
 @if (parameters != null)
 {
     <RealTimeMap @ref="realTimeMap" Parameters="@parameters" height="@mapHeight" width="@mapWidth"></RealTimeMap>
 }
 
 <button type="button" @onclick="GetGeoLocation" style="@(playerPositionSet ? "display: none;" : "display: block;")">Hämta min position</button>
-@if(playerPositionSet && !huntStarted)
+@if (playerPositionSet && !huntStarted)
 {
     <p>Din position är hämtad</p>
     <button type="button" @onclick="AddStreamPoints">Starta Skattjakten</button>
 }
 
+@if (currentStation != null && huntStarted)
+{
+    <h2>@currentStation.Name</h2>
+    @if (currentStationReached)
+    {
+        <p>@currentStation.Assignment</p>
+    }
+    else
+    {
+        <p>Gå till stationen</p>
+    }
+}
 
 @code {
     [Parameter]
@@ -37,17 +54,40 @@
     private WindowNavigatorGeolocation? geolocationWrapper;
     private bool huntStarted = false;
     private bool playerPositionSet = false;
+    private RealTimeMap.StreamPoint playerPosition;
 
     private TreasureMap Map => treasureMapService.GetMapByName(MapName);
     private List<RealTimeMap.StreamPoint> StreamPoints = [];
+    private List<Station> Stations => Map.Stations;
+    private Station currentStation => Stations[0];
+    private int? timeLeft;
+    private Timer _timer;
+    private Timer _countDownTimer;
+    private bool currentStationReached = false;
 
+    protected override void OnInitialized()
+    {
+        _timer = new Timer(2000);
+        _timer.Elapsed += async (sender, e) => await OnTimedEvent(sender, e); // Handle async calls
+        _timer.AutoReset = true;
+
+        _countDownTimer = new Timer(1000); // Set the interval to 1 second
+        _countDownTimer.Elapsed += OnCountTimedEvent;
+        _countDownTimer.AutoReset = true;
+        _countDownTimer.Start();
+
+        if (Map.Settings.TimeLimit > 0)
+        {
+            timeLeft = (int)Map.Settings.TimeLimit * 60;
+        }
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         var window = await jsR.Window();
         if (window.InnerWidth < 500)
         {
             mapHeight = "300px";
-            mapWidth = "370";
+            mapWidth = "370px";
         }
         var navigator = await window.Navigator();
         geolocationWrapper = navigator.Geolocation;
@@ -61,6 +101,54 @@
                 },
                 zoom_level = 17
             };
+        //Debug.WriteLine("INITIALIZED ASYNC");
+    }
+
+    private async Task OnTimedEvent(Object source, ElapsedEventArgs evArgs)
+    {
+        try
+        {
+            await GetGeoLocation();
+        }
+        catch (Exception exeption)
+        {
+            System.Diagnostics.Debug.Print(exeption.Message);
+            throw;
+        }
+    }
+
+    private void OnCountTimedEvent(Object source, ElapsedEventArgs e)
+    {
+        if (timeLeft > 0) { timeLeft--; }
+        else
+        {
+            _timer.Stop();
+        }
+
+        InvokeAsync(() =>
+        {
+            StateHasChanged(); // Notify Blazor that the state has changed
+        });
+    }
+
+    private string FormatTime(int? totalSeconds)
+    {
+        if (totalSeconds == null || totalSeconds <= 0)
+        {
+            return "00:00:00";
+        }
+
+        int seconds = totalSeconds.Value % 60;
+        int minutes = (totalSeconds.Value / 60) % 60;
+        int hours = totalSeconds.Value / 3600;
+
+        return $"{hours:D2}:{minutes:D2}:{seconds:D2}";
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+        _countDownTimer?.Dispose();
     }
 
     public async Task GetGeoLocation()
@@ -72,6 +160,20 @@
                 TimeoutTimeSpan = TimeSpan.FromMinutes(1)
             }
         ));
+        if (playerPositionSet && huntStarted)
+        {
+
+            var point = new RealTimeMap.StreamPoint()
+                {
+                    latitude = currentPosition!.Location.Coords.Latitude,
+                    longitude = currentPosition.Location.Coords.Longitude,
+                    guid = playerPosition.guid,
+                    type = playerPosition.type,
+                    value = playerPosition.value
+                };
+            realTimeMap.Geometric.Points.moveTo(point);
+            //Debug.WriteLine($"Player moved: {currentPosition!.Location.Coords.Latitude} - {currentPosition!.Location.Coords.Longitude}");
+        }
         playerPositionSet = true;
     }
 
@@ -89,15 +191,17 @@
                 });
         }
 
+        playerPosition = new RealTimeMap.StreamPoint()
+            {
+                latitude = currentPosition!.Location.Coords.Latitude,
+                longitude = currentPosition.Location.Coords.Longitude,
+                guid = Guid.NewGuid(),
+                type = "player",
+                value = "Din position"
+            };
+
         // place players position on the map
-        StreamPoints.Add(new RealTimeMap.StreamPoint()
-        {
-            latitude = currentPosition!.Location.Coords.Latitude,
-            longitude = currentPosition.Location.Coords.Longitude,
-            guid = Guid.NewGuid(),
-            type = "player",
-            value = "Din position"
-        });
+        StreamPoints.Add(playerPosition);
 
         // Define the appearance of the points on the map
         realTimeMap!.Geometric.Points.Appearance(point => point.type == "point").pattern = new RealTimeMap.PointSymbol()
@@ -135,6 +239,7 @@
         // Upload the StreamPoints to the map
         realTimeMap.Geometric.Points.upload(StreamPoints, false);
         huntStarted = true;
+        _timer.Start();
     }
 
 
