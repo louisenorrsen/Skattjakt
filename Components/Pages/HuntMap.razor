@@ -71,7 +71,7 @@
 
     protected override void OnInitialized()
     {
-        _timer = new Timer(2000);
+        _timer = new Timer(5000);
         _timer.Elapsed += async (sender, e) => await OnTimedEvent(sender, e); // Handle async calls
         _timer.AutoReset = true;
 
@@ -160,24 +160,28 @@
         currentPosition = (await geolocationWrapper!.GetCurrentPosition(new PositionOptions()
             {
                 EnableHighAccuracy = true,
-                MaximumAgeTimeSpan = TimeSpan.FromHours(1),
-                TimeoutTimeSpan = TimeSpan.FromMinutes(1)
+                MaximumAgeTimeSpan = TimeSpan.Zero,
+                TimeoutTimeSpan = TimeSpan.FromSeconds(30)
             }
         ));
         if (playerPositionSet && huntStarted)
         {
 
-            var point = new RealTimeMap.StreamPoint()
-                {
-                    latitude = currentPosition!.Location.Coords.Latitude,
-                    longitude = currentPosition.Location.Coords.Longitude,
-                    guid = playerPosition.guid,
-                    type = playerPosition.type,
-                    value = playerPosition.value
-                };
-            realTimeMap.Geometric.Points.moveTo(point);
-            //Debug.WriteLine($"Player moved: {currentPosition!.Location.Coords.Latitude} - {currentPosition!.Location.Coords.Longitude}");
-        }
+        // var latitude = currentPosition!.Location.Coords.Latitude;
+        // var longitude = currentPosition!.Location.Coords.Longitude;
+
+        // if (playerPositionSet && huntStarted)
+        // {
+        //     var point = new RealTimeMap.StreamPoint()
+        //         {
+        //             latitude = latitude,
+        //             longitude = longitude,
+        //             guid = playerPosition.guid,
+        //             type = playerPosition.type,
+        //             value = playerPosition.value
+        //         };
+        //     realTimeMap.Geometric.Points.moveTo(point);
+        // }
         playerPositionSet = true;
     }
 
