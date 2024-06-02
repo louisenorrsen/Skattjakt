@@ -31,7 +31,15 @@
     <h2>@currentStation.Name</h2>
     @if (currentStationReached)
     {
+        <h3>Bra jobbat! Du är framme, här ska du:</h3>
         <p>@currentStation.Assignment</p>
+        <button type="button" @onclick="ShowNextStation">Visa nästa station</button>
+    }
+    else if (currentStationIndex == Stations.Count - 1)
+    {
+        <h3>Grattis! Du är framme vid sista stationen</h3>
+        <p>@currentStation.Assignment</p>
+        <button type="button" @onclick="NavigateToHomePage">Slutför skattjakten</button>
     }
     else
     {
@@ -63,7 +71,8 @@
     private TreasureMap Map => treasureMapService.GetMapByName(MapName);
     private List<RealTimeMap.StreamPoint> StreamPoints = [];
     private List<Station> Stations => Map.Stations;
-    private Station currentStation => Stations[0];
+    private int currentStationIndex = 0;
+    private Station currentStation => Stations[currentStationIndex];
     private int? timeLeft;
     private Timer _timer;
     private Timer _countDownTimer;
@@ -105,7 +114,6 @@
                 },
                 zoom_level = 17
             };
-        //Debug.WriteLine("INITIALIZED ASYNC");
     }
 
     private async Task OnTimedEvent(Object source, ElapsedEventArgs evArgs)
@@ -164,8 +172,6 @@
                 TimeoutTimeSpan = TimeSpan.FromSeconds(30)
             }
         ));
-        if (playerPositionSet && huntStarted)
-        {
 
         // var latitude = currentPosition!.Location.Coords.Latitude;
         // var longitude = currentPosition!.Location.Coords.Longitude;
@@ -186,16 +192,15 @@
     }
 
     private void AddStreamPoint()
-        {
-            StreamPoints.Add(new RealTimeMap.StreamPoint()
-                {
+    {
+        StreamPoints.Add(new RealTimeMap.StreamPoint()
+            {
                 latitude = currentStation.Location.Latitude,
                 longitude = currentStation.Location.Longitude,
                 guid = currentStation.PointOnMapGuid,
-                    type = "point",
+                type = "point",
                 value = new Attributes() { id = currentStation.Id, name = currentStation.Name }
-                });
-        }
+            });
 
         playerPosition = new RealTimeMap.StreamPoint()
             {
