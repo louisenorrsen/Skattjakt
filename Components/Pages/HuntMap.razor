@@ -44,6 +44,11 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         var window = await jsR.Window();
+        if (window.InnerWidth < 500)
+        {
+            mapHeight = "300px";
+            mapWidth = "370";
+        }
         var navigator = await window.Navigator();
         geolocationWrapper = navigator.Geolocation;
         await GetGeoLocation();
@@ -80,7 +85,7 @@
                     longitude = station.Location.Longitude,
                     guid = station.PointOnMapGuid,
                     type = "point",
-                    value = station.Id.ToString()
+                    value = new Attributes() { id = station.Id, name = station.Name }
                 });
         }
 
@@ -112,15 +117,15 @@
             };
 
         // Define the appearance of the points tooltip
-        realTimeMap.Geometric.Points.Appearance(point => point.type == "point").pattern = new RealTimeMap.PointTooltip()
+        realTimeMap.Geometric.Points.AppearanceOnType(point => point.type == "point").pattern = new RealTimeMap.PointTooltip()
             {
                 // the value is set when the StreamPoint is created and added to the StreamPoint list
-                content = "${value}",
+                content = "<b>Id: </b>${value.id}<br><b>Namn: </b>${value.name}",
                 opacity = 0.8,
                 permanent = true
             };
 
-        realTimeMap!.Geometric.Points.Appearance(point => point.type == "player").pattern = new RealTimeMap.PointTooltip()
+        realTimeMap!.Geometric.Points.AppearanceOnType(point => point.type == "player").pattern = new RealTimeMap.PointTooltip()
             {
                 content = "${value}",
                 opacity = 0.8,
