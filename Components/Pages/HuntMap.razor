@@ -4,27 +4,64 @@
 @using BrowserInterop.Extensions
 @using BrowserInterop.Geolocation
 @using System.Timers
+@using System.Diagnostics
 @inject IJSRuntime jsR
 @inject TreasureMapService treasureMapService;
 @inject NavigationManager Navigation
 
-<h1 class="map-name-title">Skattjakt - @Map.Name</h1>
+<h1 class="map-name-title">Skattjakt - @Map!.Name</h1>
+@if (timeLeft > -1 && huntStarted)
+{
+    <h2>Tid kvar: @FormatTime(timeLeft)</h2>
+}
 @if (parameters != null)
 {
     <RealTimeMap @ref="realTimeMap" Parameters="@parameters" height="@mapHeight" width="@mapWidth"></RealTimeMap>
 }
 
 <button type="button" @onclick="GetGeoLocation" style="@(playerPositionSet ? "display: none;" : "display: block;")">Hämta min position</button>
-@if(playerPositionSet && !huntStarted)
+@if (playerPositionSet && !huntStarted)
 {
     <p>Din position är hämtad</p>
-    <button type="button" @onclick="AddStreamPoints">Starta Skattjakten</button>
+    <button type="button" @onclick="AddStreamPoint">Starta Skattjakten</button>
 }
 
+@if (currentStation != null && huntStarted)
+{
+    @* <div>
+        CurrentStationIndex: @currentStationIndex<br />
+        CurrentStation: @currentStation.Name<br />
+        CurrentStationReached: @currentStationReached<br />
+        PlayerPosition: @Math.Round(playerPosition!.latitude, 4), @Math.Round(playerPosition!.longitude, 4)<br />
+        CurrentStationPosition: @Math.Round(currentStation!.Location.Latitude, 4), @Math.Round(currentStation!.Location.Longitude, 4)<br />
+    </div>
+    *@
+    <h2 style="margin-bottom: 0px;">@currentStation.Name</h2>
+    @if (currentStationReached && currentStationIndex == Stations.Count - 1)
+    {
+        <h3>Grattis! Du är framme vid sista stationen</h3>
+        <p style="margin-top:10px; margin-bottom: 0px;">@currentStation.Assignment</p>
+        <button type="button" @onclick="NavigateToHomePage">Slutför skattjakten</button>
+    }
+    else if (currentStationReached)
+    {
+        <h3>Bra jobbat! Du är framme, här ska du:</h3>
+        <p style="margin-top:10px; margin-bottom: 0px;">@currentStation.Assignment</p>
+        <button type="button" @onclick="ShowNextStation">Visa nästa station</button>
+    }
+    else
+    {
+        <p style="margin-top:10px; margin-bottom: 0px;">Gå till stationen</p>
+        @* <div class="demobox">
+            <p>Knapp i demosyfte</p>
+            <button type="button" @onclick="MovePlayerToNextStation">Förflytta till stationen</button>
+        </div> *@
+    }
+}
 
 @code {
     [Parameter]
-    public string MapName { get; set; }
+    public string? MapName { get; set; }
     /// <summary>
     /// Reference to the RealTimeMap component
     /// </summary>
@@ -37,13 +74,42 @@
     private WindowNavigatorGeolocation? geolocationWrapper;
     private bool huntStarted = false;
     private bool playerPositionSet = false;
+    private RealTimeMap.StreamPoint? playerPosition;
 
-    private TreasureMap Map => treasureMapService.GetMapByName(MapName);
+    private TreasureMap? Map => treasureMapService.GetMapByName(MapName!);
     private List<RealTimeMap.StreamPoint> StreamPoints = [];
+    private List<Station> Stations => Map!.Stations;
+    private int currentStationIndex = 0;
+    private Station currentStation => Stations[currentStationIndex];
+    private int? timeLeft;
+    private Timer? _timer;
+    private Timer? _countDownTimer;
+    private bool currentStationReached = false;
 
+    protected override void OnInitialized()
+    {
+        _timer = new Timer(2000);
+        _timer.Elapsed += async (sender, e) => await OnTimedEvent(sender!, e); // Handle async calls
+        _timer.AutoReset = true;
+
+        _countDownTimer = new Timer(1000); // Set the interval to 1 second
+        _countDownTimer.Elapsed += OnCountTimedEvent!;
+        _countDownTimer.AutoReset = true;
+        _countDownTimer.Start();
+
+        if (Map!.Settings.TimeLimit > 0)
+        {
+            timeLeft = (int)Map.Settings.TimeLimit * 60;
+        }
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         var window = await jsR.Window();
+        if (window.InnerWidth < 500)
+        {
+            mapHeight = "300px";
+            mapWidth = "370px";
+        }
         var navigator = await window.Navigator();
         geolocationWrapper = navigator.Geolocation;
         await GetGeoLocation();
@@ -58,41 +124,112 @@
             };
     }
 
+    private async Task OnTimedEvent(Object source, ElapsedEventArgs evArgs)
+    {
+        try
+        {
+            await GetGeoLocation();
+        }
+        catch (Exception exeption)
+        {
+            System.Diagnostics.Debug.Print(exeption.Message);
+            throw;
+        }
+    }
+
+    private void OnCountTimedEvent(Object source, ElapsedEventArgs e)
+    {
+        if (timeLeft > 0) { timeLeft--; }
+        else
+        {
+            _timer!.Stop();
+        }
+
+        InvokeAsync(() =>
+        {
+            StateHasChanged(); // Notify Blazor that the state has changed
+        });
+    }
+
+    private string FormatTime(int? totalSeconds)
+    {
+        if (totalSeconds == null || totalSeconds <= 0)
+        {
+            return "00:00:00";
+        }
+
+        int seconds = totalSeconds.Value % 60;
+        int minutes = (totalSeconds.Value / 60) % 60;
+        int hours = totalSeconds.Value / 3600;
+
+        return $"{hours:D2}:{minutes:D2}:{seconds:D2}";
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+        _countDownTimer?.Dispose();
+    }
+
     public async Task GetGeoLocation()
     {
         currentPosition = (await geolocationWrapper!.GetCurrentPosition(new PositionOptions()
             {
                 EnableHighAccuracy = true,
-                MaximumAgeTimeSpan = TimeSpan.FromHours(1),
-                TimeoutTimeSpan = TimeSpan.FromMinutes(1)
+                MaximumAgeTimeSpan = TimeSpan.FromSeconds(2),
+                TimeoutTimeSpan = TimeSpan.FromMinutes(10)
             }
         ));
+
+        var latitude = currentPosition!.Location.Coords.Latitude;
+        var longitude = currentPosition!.Location.Coords.Longitude;
+
+        if (playerPositionSet && huntStarted)
+        {
+            playerPosition = new RealTimeMap.StreamPoint()
+                {
+                    latitude = latitude,
+                    longitude = longitude,
+                    guid = playerPosition!.guid,
+                    type = playerPosition.type,
+                    value = playerPosition.value
+                };
+            await realTimeMap!.Geometric.Points.moveTo(playerPosition);
+
+
+            // Try different Math.Round to make sure the player is at the station
+            if (Math.Round(currentStation.Location.Latitude, 4) == Math.Round(playerPosition!.latitude, 4) &&
+                Math.Round(currentStation.Location.Longitude, 4) == Math.Round(playerPosition!.longitude, 4))
+            {
+                currentStationReached = true;
+                StreamPoints.Find(point => point.guid == currentStation.PointOnMapGuid)!.type = "reachedpoint";
+            }
+        }
         playerPositionSet = true;
     }
 
-    private void AddStreamPoints()
+    private void AddStreamPoint()
     {
-        foreach (Station station in Map.Stations)
-        {
-            StreamPoints.Add(new RealTimeMap.StreamPoint()
-                {
-                    latitude = station.Location.Latitude,
-                    longitude = station.Location.Longitude,
-                    guid = station.PointOnMapGuid,
-                    type = "point",
-                    value = station.Id.ToString()
-                });
-        }
+        StreamPoints.Add(new RealTimeMap.StreamPoint()
+            {
+                latitude = currentStation.Location.Latitude,
+                longitude = currentStation.Location.Longitude,
+                guid = currentStation.PointOnMapGuid,
+                type = "point",
+                value = new Attributes() { id = currentStation.Id, name = currentStation.Name }
+            });
+
+        playerPosition = new RealTimeMap.StreamPoint()
+            {
+                latitude = currentPosition!.Location.Coords.Latitude,
+                longitude = currentPosition.Location.Coords.Longitude,
+                guid = Guid.NewGuid(),
+                type = "player",
+                value = "Din position"
+            };
 
         // place players position on the map
-        StreamPoints.Add(new RealTimeMap.StreamPoint()
-        {
-            latitude = currentPosition!.Location.Coords.Latitude,
-            longitude = currentPosition.Location.Coords.Longitude,
-            guid = Guid.NewGuid(),
-            type = "player",
-            value = "Din position"
-        });
+        StreamPoints.Add(playerPosition);
 
         // Define the appearance of the points on the map
         realTimeMap!.Geometric.Points.Appearance(point => point.type == "point").pattern = new RealTimeMap.PointSymbol()
@@ -108,29 +245,73 @@
                 color = "blue",
                 fillColor = "blue",
                 fillOpacity = 0.7,
+                radius = 5
+            };
+
+        realTimeMap.Geometric.Points.Appearance(point => point.type == "reachedpoint").pattern = new RealTimeMap.PointSymbol()
+            {
+                color = "green",
+                fillColor = "green",
+                fillOpacity = 0.7,
                 radius = 10,
             };
 
         // Define the appearance of the points tooltip
-        realTimeMap.Geometric.Points.Appearance(point => point.type == "point").pattern = new RealTimeMap.PointTooltip()
+        realTimeMap.Geometric.Points.AppearanceOnType(point => point.type == "point").pattern = new RealTimeMap.PointTooltip()
             {
                 // the value is set when the StreamPoint is created and added to the StreamPoint list
-                content = "${value}",
-                opacity = 0.8,
-                permanent = true
-            };
-
-        realTimeMap!.Geometric.Points.Appearance(point => point.type == "player").pattern = new RealTimeMap.PointTooltip()
-            {
-                content = "${value}",
+                content = "<b>Id: </b>${value.id}<br><b>Namn: </b>${value.name}",
                 opacity = 0.8,
                 permanent = false
             };
 
+        realTimeMap!.Geometric.Points.AppearanceOnType(point => point.type == "player").pattern = new RealTimeMap.PointTooltip()
+            {
+                content = "${value}",
+                opacity = 0.8,
+                permanent = false,
+            };
+
         // Upload the StreamPoints to the map
-        realTimeMap.Geometric.Points.upload(StreamPoints, false);
+        realTimeMap.Geometric.Points.upload(StreamPoints, true);
         huntStarted = true;
+        _timer!.Start();
     }
 
+    private void MovePlayerToNextStation(MouseEventArgs e)
+    {
+        playerPosition = new RealTimeMap.StreamPoint()
+            {
+                latitude = currentStation.Location.Latitude,
+                longitude = currentStation.Location.Longitude,
+                guid = playerPosition!.guid,
+                type = playerPosition.type,
+                value = playerPosition.value
+            };
+        realTimeMap!.Geometric.Points.moveTo(playerPosition);
+    }
 
+    private void ShowNextStation(MouseEventArgs e)
+    {
+        if (currentStationIndex != Stations.Count - 1)
+        {
+            currentStationIndex++;
+            currentStationReached = false;
+
+            RealTimeMap.StreamPoint nextStation = new RealTimeMap.StreamPoint()
+                {
+                    latitude = currentStation.Location.Latitude,
+                    longitude = currentStation.Location.Longitude,
+                    guid = currentStation.PointOnMapGuid,
+                    type = "point",
+                    value = new Attributes() { id = currentStation.Id, name = currentStation.Name }
+                };
+            StreamPoints.Add(nextStation);
+            realTimeMap!.Geometric.Points.upload(StreamPoints, true);
+        }
+    }
+    private void NavigateToHomePage(MouseEventArgs e)
+    {
+        Navigation.NavigateTo("/");
+    }
 }

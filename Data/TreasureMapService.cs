@@ -24,7 +24,7 @@ namespace Skattjakt.Data
         // Get a specific treasure map by its name
         public TreasureMap GetMapByName(string name)
         {
-            TreasureMap? map = Maps.FirstOrDefault(map => map.Name == name);
+            TreasureMap? map = Maps.FirstOrDefault(map => map.Name.ToLower() == name.ToLower());
             if (map == null)
             {
                 throw new InvalidOperationException($"TreasureMap with Name {name} not found.");

@@ -58,3 +58,8 @@ button:disabled {
     opacity: 0.3; /* For example, reduce opacity to indicate the disabled state */
     background-color: forestgreen;
 }
+
+.demobox {
+    border-top: 1px solid #ccc;
+    margin-top: 2rem;
+}
