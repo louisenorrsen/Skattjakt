@@ -15,14 +15,8 @@
     {
         <h2>Tid kvar: @FormatTime(timeLeft)</h2>
     }
-
-    <div class="station-table">
-        @for (int i = 0; i < Locations.Count; i++)
-        {
-            <StationItem Station="@Locations[i]" Index=@i TotalStations="@Locations.Count" />
-        }
-    </div>
 </div>
+<canvas id="myCanvas" style="border:1px solid #000000;"></canvas>
 
 @if (clientPosition != null && nextStation > -1)
 {
@@ -36,6 +30,7 @@
 }
 @((MarkupString)userMessage!)
 <button type="button" @onclick="GetNextStation">Hämta Nästa Station</button>
+
 @code {
     bool showMap = false;
 
@@ -44,6 +39,7 @@
     private GeolocationResult? clientPosition;
     private LocationCoordinate clientCoordinate;
     private LocationCoordinate goalCoordinate;
+    private LocationCoordinate directionCoordinate;
 
     private int metersBetween;
     // private List<GeolocationPosition> positionHistory = new List<GeolocationPosition>();
@@ -81,15 +77,16 @@
             timeLeft = (int)Map.Settings.TimeLimit * 60;
         }
         System.Diagnostics.Debug.Print("INITIALIZED");
+        directionCoordinate = new LocationCoordinate(0.0,0.0);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        System.Diagnostics.Debug.Print("INITIALIZED ASYNC");
         var window = await jsR.Window();
         var navigator = await window.Navigator();
         geolocationWrapper = navigator.Geolocation;
         await GetGeoLocation();
+        await jsR.InvokeVoidAsync("canvasInterop.setupCanvas",directionCoordinate.Longitude*100,directionCoordinate.Latitude*100);
         nrOfStations = Map!.Stations.Count();
         _timer!.Start();
     }
@@ -174,6 +171,10 @@
             if (clientPosition != null)
             {
                 clientCoordinate.SetLocation(clientPosition!.Location.Coords.Latitude, clientPosition.Location.Coords.Longitude);
+                //directionCoordinate.SetLocation(clientPosition!.Location.Coords.Latitude, clientPosition.Location.Coords.Longitude);
+                directionCoordinate = new LocationCoordinate((goalCoordinate.Longitude - clientCoordinate.Longitude) * 100, (goalCoordinate.Latitude - clientCoordinate.Latitude) * 100);
+                System.Diagnostics.Debug.Print("DirCord: " + directionCoordinate.Longitude + " " + directionCoordinate.Latitude);
+
             }
         }
     }
