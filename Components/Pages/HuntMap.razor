@@ -35,26 +35,27 @@
         PlayerPosition: @Math.Round(playerPosition!.latitude, 4), @Math.Round(playerPosition!.longitude, 4)<br />
         CurrentStationPosition: @Math.Round(currentStation!.Location.Latitude, 4), @Math.Round(currentStation!.Location.Longitude, 4)<br />
     </div>
-    <h2>@currentStation.Name</h2>
+    *@
+    <h2 style="margin-bottom: 0px;">@currentStation.Name</h2>
     @if (currentStationReached && currentStationIndex == Stations.Count - 1)
     {
         <h3>Grattis! Du är framme vid sista stationen</h3>
-        <p>@currentStation.Assignment</p>
+        <p style="margin-top:10px; margin-bottom: 0px;">@currentStation.Assignment</p>
         <button type="button" @onclick="NavigateToHomePage">Slutför skattjakten</button>
     }
     else if (currentStationReached)
     {
         <h3>Bra jobbat! Du är framme, här ska du:</h3>
-        <p>@currentStation.Assignment</p>
+        <p style="margin-top:10px; margin-bottom: 0px;">@currentStation.Assignment</p>
         <button type="button" @onclick="ShowNextStation">Visa nästa station</button>
     }
     else
     {
-        <p>Gå till stationen</p>
-        <div class="demobox">
+        <p style="margin-top:10px; margin-bottom: 0px;">Gå till stationen</p>
+        @* <div class="demobox">
             <p>Knapp i demosyfte</p>
             <button type="button" @onclick="MovePlayerToNextStation">Förflytta till stationen</button>
-        </div>
+        </div> *@
     }
 }
 
@@ -87,7 +88,7 @@
 
     protected override void OnInitialized()
     {
-        _timer = new Timer(5000);
+        _timer = new Timer(2000);
         _timer.Elapsed += async (sender, e) => await OnTimedEvent(sender!, e); // Handle async calls
         _timer.AutoReset = true;
 
@@ -175,8 +176,8 @@
         currentPosition = (await geolocationWrapper!.GetCurrentPosition(new PositionOptions()
             {
                 EnableHighAccuracy = true,
-                MaximumAgeTimeSpan = TimeSpan.Zero,
-                TimeoutTimeSpan = TimeSpan.FromMinutes(5)
+                MaximumAgeTimeSpan = TimeSpan.FromSeconds(2),
+                TimeoutTimeSpan = TimeSpan.FromMinutes(10)
             }
         ));
 
