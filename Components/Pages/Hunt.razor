@@ -8,12 +8,12 @@
 @inject TreasureMapService treasureMapService;
 @inject NavigationManager Navigation
 
-<h1 class="map-name-title">Skattjakt @Map.Name</h1>
+<h1 class="map-name-title">Skattjakt @Map!.Name</h1>
 
 <div class="show-stations">
     @if (timeLeft > -1)
     {
-        <h1>@timeLeft</h1>
+        <h2>Tid kvar: @FormatTime(timeLeft)</h2>
     }
 
     <div class="station-table">
@@ -28,40 +28,34 @@
 {
     <div>
         <div>
-            @*
-        <p>Goal: @goalCoordinate.Latitude, @goalCoordinate.Longitude, @Map.Stations[nextStation].Name</p>
-        <br />
-        <p>Student: @clientCoordinate.Latitude, @clientCoordinate.Longitude</p>
-        <br />
-        *@
             <p>@Map.Stations[nextStation].Name</p>
             <p>@metersBetween @i</p>
             <p>meter till nästa station.</p>
         </div>
     </div>
 }
-@((MarkupString)userMessage)
+@((MarkupString)userMessage!)
 <button type="button" @onclick="GetNextStation">Hämta Nästa Station</button>
 @code {
     bool showMap = false;
 
     int nrOfStations, nextStation;
-    private WindowNavigatorGeolocation geolocationWrapper;
+    private WindowNavigatorGeolocation? geolocationWrapper;
     private GeolocationResult? clientPosition;
     private LocationCoordinate clientCoordinate;
     private LocationCoordinate goalCoordinate;
 
     private int metersBetween;
     // private List<GeolocationPosition> positionHistory = new List<GeolocationPosition>();
-    string userMessage;
+    string? userMessage;
     [Parameter]
-    public string MapName { get; set; }
+    public string? MapName { get; set; }
 
     public List<Station> Locations = new List<Station>();
 
-    private TreasureMap Map { get; set; }
-    private Timer _timer;
-    private Timer _countDownTimer;
+    private TreasureMap? Map { get; set; }
+    private Timer? _timer;
+    private Timer? _countDownTimer;
     private int timeLeft = -1; // Set the countdown time in seconds
     /// <summary>
     /// Reference to the RealTimeMap component
@@ -72,16 +66,16 @@
     protected override void OnInitialized()
     {
         _timer = new Timer(2000);
-        _timer.Elapsed += async (sender, e) => await OnTimedEvent(sender, e); // Handle async calls
+        _timer.Elapsed += async (sender, e) => await OnTimedEvent(sender!, e); // Handle async calls
         _timer.AutoReset = true;
 
         _countDownTimer = new Timer(1000); // Set the interval to 1 second
-        _countDownTimer.Elapsed += OnCountTimedEvent;
+        _countDownTimer.Elapsed += OnCountTimedEvent!;
         _countDownTimer.AutoReset = true;
         _countDownTimer.Start();
 
         nextStation = -1;
-        Map = treasureMapService.GetMapByName(MapName);
+        Map = treasureMapService.GetMapByName(MapName!);
         if (Map.Settings.TimeLimit > 0)
         {
             timeLeft = (int)Map.Settings.TimeLimit * 60;
@@ -96,20 +90,8 @@
         var navigator = await window.Navigator();
         geolocationWrapper = navigator.Geolocation;
         await GetGeoLocation();
-        nrOfStations = Map.Stations.Count();
-        // if (clientPosition != null)
-        // {
-        //     parameters = new RealTimeMap.LoadParameters()
-        //         {
-        //             location = new RealTimeMap.Location()
-        //             {
-        //                 latitude = clientPosition!.Location.Coords.Latitude,
-        //                 longitude = clientPosition.Location.Coords.Longitude
-        //             },
-        //             zoom_level = 10
-        //         };
-        // }
-        _timer.Start();
+        nrOfStations = Map!.Stations.Count();
+        _timer!.Start();
     }
 
     int i = 0;
@@ -118,12 +100,18 @@
         try
         {
             await GetGeoLocation();
-            System.Diagnostics.Debug.Print("Client Position " + clientPosition.Location.Coords.Longitude + " " + clientPosition.Location.Coords.Latitude);
+            if (clientPosition != null)
+            {
+                System.Diagnostics.Debug.Print("Client Position " + clientPosition!.Location.Coords.Longitude + " " + clientPosition.Location.Coords.Latitude);
+            } else
+            {
+                System.Diagnostics.Debug.Print("Client Position is null");
+            }
 
             await InvokeAsync(() =>
             {
                 metersBetween = CalculateHaversineDistance(clientCoordinate, goalCoordinate);
-                //StateHasChanged();
+                StateHasChanged();
             });
             if (metersBetween <= 2)
             {
@@ -148,7 +136,7 @@
         if (timeLeft > 0) { timeLeft--; }
         else
         {
-            _timer.Stop();
+            _timer!.Stop();
         }
 
         InvokeAsync(() =>
@@ -167,7 +155,7 @@
     {
         try
         {
-            clientPosition = (await geolocationWrapper.GetCurrentPosition(new PositionOptions()
+            clientPosition = (await geolocationWrapper!.GetCurrentPosition(new PositionOptions()
                 {
                     EnableHighAccuracy = true,
                     MaximumAgeTimeSpan = TimeSpan.FromSeconds(2),
@@ -178,7 +166,7 @@
         catch (Exception exeption)
         {
             System.Diagnostics.Debug.Print(exeption.Message);
-            _timer.Stop();
+            _timer!.Stop();
             // throw;
         }
         finally
@@ -191,7 +179,7 @@
     }
     private void GetNextStation()
     {
-        if (nextStation < Map.Stations.Count() - 1)
+        if (nextStation < Map!.Stations.Count() - 1)
         {
             if (nextStation > -1)
             {
@@ -208,5 +196,18 @@
             metersBetween = CalculateHaversineDistance(clientCoordinate, goalCoordinate);
             userMessage = "Grattis. Du har klarat ALLA stationer.<br />Återgå till basstationen och hämta din belöning.";
         }
+    }
+    private string FormatTime(int? totalSeconds)
+    {
+        if (totalSeconds == null || totalSeconds <= 0)
+        {
+            return "00:00:00";
+        }
+
+        int seconds = totalSeconds.Value % 60;
+        int minutes = (totalSeconds.Value / 60) % 60;
+        int hours = totalSeconds.Value / 3600;
+
+        return $"{hours:D2}:{minutes:D2}:{seconds:D2}";
     }
 }
