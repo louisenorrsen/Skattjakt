@@ -68,6 +68,7 @@
     /// </summary>
     RealTimeMap? realTimeMap;
     RealTimeMap.LoadParameters? parameters = null;
+
     protected override void OnInitialized()
     {
         _timer = new Timer(2000);
@@ -96,18 +97,18 @@
         geolocationWrapper = navigator.Geolocation;
         await GetGeoLocation();
         nrOfStations = Map.Stations.Count();
-        if (clientPosition != null)
-        {
-            parameters = new RealTimeMap.LoadParameters()
-                {
-                    location = new RealTimeMap.Location()
-                    {
-                        latitude = clientPosition!.Location.Coords.Latitude,
-                        longitude = clientPosition.Location.Coords.Longitude
-                    },
-                    zoom_level = 10
-                };
-        }
+        // if (clientPosition != null)
+        // {
+        //     parameters = new RealTimeMap.LoadParameters()
+        //         {
+        //             location = new RealTimeMap.Location()
+        //             {
+        //                 latitude = clientPosition!.Location.Coords.Latitude,
+        //                 longitude = clientPosition.Location.Coords.Longitude
+        //             },
+        //             zoom_level = 10
+        //         };
+        // }
         _timer.Start();
     }
 
@@ -117,16 +118,17 @@
         try
         {
             await GetGeoLocation();
+            System.Diagnostics.Debug.Print("Client Position " + clientPosition.Location.Coords.Longitude + " " + clientPosition.Location.Coords.Latitude);
+
             await InvokeAsync(() =>
             {
                 metersBetween = CalculateHaversineDistance(clientCoordinate, goalCoordinate);
-                StateHasChanged();
+                //StateHasChanged();
             });
             if (metersBetween <= 2)
             {
                 GetNextStation();
             }
-            System.Diagnostics.Debug.Print("TimedEvent " + i);
             await InvokeAsync(() =>
                {
                    i++;
@@ -168,7 +170,7 @@
             clientPosition = (await geolocationWrapper.GetCurrentPosition(new PositionOptions()
                 {
                     EnableHighAccuracy = true,
-                    MaximumAgeTimeSpan = TimeSpan.FromHours(1),
+                    MaximumAgeTimeSpan = TimeSpan.FromSeconds(2),
                     TimeoutTimeSpan = TimeSpan.FromMinutes(1)
                 }
             ));
