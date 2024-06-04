@@ -6,7 +6,7 @@
 <PageTitle>Skapa skattjakt</PageTitle>
 
 <form class="form-content">
-    <label for="MapNameInput"><h1>Ange kartnamn</h1></label>
+    <h1>Ange kartnamn</h1>
     <p class="alert-box">@AlertText</p>
     <input id="MapNameInput" class="map-name-input" type="text" @bind="MapName" @oninput="UpdateButtonState" />
     <button type="button" class="map-name-button" disabled="@IsDisabled" @onclick="CreateMap">Skapa</button>
@@ -27,11 +27,11 @@
     }
     private void CreateMap()
     {
-        IsValidName = treasureMapService.Maps.All(map => map.Name.ToLower() != MapName.ToLower());
+        IsValidName = treasureMapService.Maps.All(map => map.Name.ToLower() != MapName!.ToLower().Trim());
         if (!string.IsNullOrEmpty(MapName) && IsValidName)
         {
             AlertText = "";
-            NavManager.NavigateTo($"/Skapa/{MapName}");
+            NavManager.NavigateTo($"/Skapa/{MapName.Trim()}");
         }
         else if (!IsValidName)
         {
@@ -46,17 +46,17 @@
     }
     private void GetMap()
     {
-        IsValidName = treasureMapService.Maps.Any(map => map.Name.ToLower() == MapName.ToLower());
+        IsValidName = treasureMapService.Maps.Any(map => map.Name.ToLower() == MapName!.ToLower().Trim());
         if (!string.IsNullOrEmpty(MapName) && IsValidName)
         {
             AlertText = "";
-            if(treasureMapService.GetMapByName(MapName).Settings.Visible)
+            if(treasureMapService.GetMapByName(MapName.Trim()).Settings.Visible)
             {
-                NavManager.NavigateTo($"/Jakt/KartMode/{MapName}");
+                NavManager.NavigateTo($"/Jakt/KartMode/{MapName.Trim()}");
             }
             else
             {
-                NavManager.NavigateTo($"/Jakt/{MapName}");
+                NavManager.NavigateTo($"/Jakt/{MapName.Trim()}");
             }
         }
         else if (!IsValidName)
