@@ -16,14 +16,15 @@
         <h2>Tid kvar: @FormatTime(timeLeft)</h2>
     }
 </div>
-<canvas id="myCanvas" style="border:1px solid #000000;"></canvas>
+
+<canvas id="myCanvas"></canvas>
 
 @if (clientPosition != null && nextStation > -1)
 {
     <div>
         <div>
             <p>@Map.Stations[nextStation].Name</p>
-            <p>@metersBetween @i</p>
+            <p>@metersBetween</p>
             <p>meter till nästa station.</p>
         </div>
     </div>
@@ -86,7 +87,7 @@
         var navigator = await window.Navigator();
         geolocationWrapper = navigator.Geolocation;
         await GetGeoLocation();
-        await jsR.InvokeVoidAsync("canvasInterop.setupCanvas",directionCoordinate.Longitude*100,directionCoordinate.Latitude*100);
+        await jsR.InvokeVoidAsync("canvasInterop.setupCanvas",directionCoordinate.Longitude*2000,directionCoordinate.Latitude*2000);
         nrOfStations = Map!.Stations.Count();
         _timer!.Start();
     }
