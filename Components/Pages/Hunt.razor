@@ -33,8 +33,6 @@
 <button type="button" @onclick="GetNextStation">Hämta Nästa Station</button>
 
 @code {
-    bool showMap = false;
-
     int nrOfStations, nextStation;
     private WindowNavigatorGeolocation? geolocationWrapper;
     private GeolocationResult? clientPosition;
@@ -54,12 +52,7 @@
     private Timer? _timer;
     private Timer? _countDownTimer;
     private int timeLeft = -1; // Set the countdown time in seconds
-    /// <summary>
-    /// Reference to the RealTimeMap component
-    /// </summary>
-    RealTimeMap? realTimeMap;
-    RealTimeMap.LoadParameters? parameters = null;
-
+    
     protected override void OnInitialized()
     {
         _timer = new Timer(2000);
